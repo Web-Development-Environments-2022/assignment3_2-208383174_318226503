@@ -4,7 +4,6 @@ const recipes_utils = require("./utils/recipes_utils");
 
 router.get("/", (req, res) => res.send("im here"));
 
-
 /**
  * This path returns a full details of a recipe by its id
  */
