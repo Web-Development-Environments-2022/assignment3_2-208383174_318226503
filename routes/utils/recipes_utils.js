@@ -40,6 +40,15 @@ async function getRecipeDetails(recipe_id) {
   };
 }
 
+async function getRecipesPreview(recipes_ids_list) {
+  let promises = [];
+  recipes_ids_list.map((id) => {
+    promises.push(getRecipeInformation(id));
+  });
+  let info_res = await Promise.all(promises);
+  return extractPreviewRecipeDetails(info_res);
+}
+
 async function getRandomRecipiesFromSpooncular() {
   const response = await axios.get(`${api_domain}/random`, {
     params: {
@@ -93,3 +102,4 @@ function extractPreviewRecipeDetails(recipes_info) {
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getRandomRecipies = getRandomRecipies;
+exports.getRecipesPreview = getRecipesPreview;
