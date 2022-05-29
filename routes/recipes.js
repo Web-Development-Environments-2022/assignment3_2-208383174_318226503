@@ -5,9 +5,13 @@ const recipes_utils = require("./utils/recipes_utils");
 router.get("/", (req, res) => res.send("im here"));
 
 router.get("/random", async (req, res, next) => {
+  const user_id = req.session.user_id;
   let num_of_recipes = 3;
   try {
-    let random_recipes = await recipes_utils.getRandomRecipies(num_of_recipes);
+    let random_recipes = await recipes_utils.getRandomRecipies(
+      user_id,
+      num_of_recipes
+    );
     res.send(random_recipes);
   } catch (error) {
     next(error);
@@ -16,8 +20,9 @@ router.get("/random", async (req, res, next) => {
 
 /** TODO- getRecipesPreview: to use in 8- search recepies */
 router.get("/search", async (req, res, next) => {
+  const user_id = req.session.user_id;
   try {
-    const recipe = await recipes_utils.searchRecipes([
+    const recipe = await recipes_utils.searchRecipes(user_id, [
       "663559",
       "642582",
       "655705",
@@ -31,10 +36,15 @@ router.get("/search", async (req, res, next) => {
 
 /**
  * This path returns a full details of a recipe by its id
+ * TODO- check if this is the function that will be called when wanting to see a full recipie
  */
 router.get("/:recipeId", async (req, res, next) => {
+  const user_id = req.session.user_id;
   try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
+    const recipe = await recipes_utils.getRecipeDetails(
+      user_id,
+      req.params.recipeId
+    );
     res.send(recipe);
   } catch (error) {
     next(error);

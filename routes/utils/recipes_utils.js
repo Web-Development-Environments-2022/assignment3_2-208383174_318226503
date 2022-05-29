@@ -1,4 +1,5 @@
 const axios = require("axios");
+const user_utils = require("./user_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
 /**
@@ -29,8 +30,9 @@ async function getRandomRecipiesFromSpooncular() {
 /**
  * get the recipe preview information
  */
-async function getRecipePreview(recipe_id) {
+async function getRecipePreview(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
+  let is_favorite = await user_utils.isRecipeFavorite(user_id, recipe_id);
   let {
     id,
     title,
@@ -51,6 +53,7 @@ async function getRecipePreview(recipe_id) {
     vegan: vegan,
     vegetarian: vegetarian,
     glutenFree: glutenFree,
+    isFavorite: is_favorite,
   };
 }
 
@@ -58,10 +61,10 @@ async function getRecipePreview(recipe_id) {
  * search for a list of recipes by id
  * the use of promise means that the order of return may change
  */
-async function searchRecipes(recipes_ids_list) {
+async function searchRecipes(user_id, recipes_ids_list) {
   let promises = [];
-  recipes_ids_list.map((id) => {
-    promises.push(getRecipePreview(id));
+  recipes_ids_list.map((recipes_id) => {
+    promises.push(getRecipePreview(user_id, recipes_id));
   });
   let info_res = await Promise.all(promises);
   return info_res;
@@ -70,14 +73,14 @@ async function searchRecipes(recipes_ids_list) {
 /**
  * retrieving the wanted number of random recipes
  */
-async function getRandomRecipies(num_of_recipes) {
+async function getRandomRecipies(user_id, num_of_recipes) {
   let random_pool = await getRandomRecipiesFromSpooncular();
   // TODO- additional line for filltering from lab8
   let recipes = random_pool.data.recipes;
   let selected_recipes = [];
   for (let i = 0; i < num_of_recipes; i++) {
-    let id = recipes[i].id;
-    selected_recipes.push(getRecipePreview(id));
+    let recipe_id = recipes[i].id;
+    selected_recipes.push(getRecipePreview(user_id, recipe_id));
   }
   return await Promise.all(selected_recipes);
 }
@@ -87,6 +90,7 @@ async function getRandomRecipies(num_of_recipes) {
  * this function does not contain the information from the preview
  */
 async function getAdditionalInformation(recipe_id) {
+  // TODO- make sure about the ingredient name & instructions
   let recipe_info = await getRecipeInformation(recipe_id);
   let extendedIngredients = recipe_info.data.extendedIngredients;
   let ingredientsAndQuantities = [];
@@ -109,30 +113,12 @@ async function getAdditionalInformation(recipe_id) {
  * getting the full recipe details by id
  * the details contains the preview plus the extra information
  */
-async function getRecipeDetails(recipe_id) {
-  let recipe_info = await getRecipePreview(recipe_id);
+async function getRecipeDetails(user_id, recipe_id) {
+  let recipe_info = await getRecipePreview(user_id, recipe_id);
   let { ingredientsAndQuantities, instructions, servings } =
     await getAdditionalInformation(recipe_id);
-  let {
-    id,
-    title,
-    readyInMinutes,
-    image,
-    aggregateLikes,
-    vegan,
-    vegetarian,
-    glutenFree,
-  } = recipe_info;
-
   return {
-    id: id,
-    title: title,
-    image: image,
-    readyInMinutes: readyInMinutes,
-    popularity: aggregateLikes,
-    vegan: vegan,
-    vegetarian: vegetarian,
-    glutenFree: glutenFree,
+    previewInfo: recipe_info,
     ingredientsAndQuantities: ingredientsAndQuantities,
     instructions: instructions,
     servingSize: servings,
