@@ -5,7 +5,6 @@ const recipes_utils = require("./utils/recipes_utils");
 router.get("/", (req, res) => res.send("im here"));
 
 router.get("/random", async (req, res, next) => {
-  console.log(`44444`);
   let num_of_recipes = 3;
   try {
     let random_recipes = await recipes_utils.getRandomRecipies(num_of_recipes);
@@ -18,7 +17,7 @@ router.get("/random", async (req, res, next) => {
 /** TODO- getRecipesPreview: to use in 8- search recepies */
 router.get("/search", async (req, res, next) => {
   try {
-    const recipe = await recipes_utils.getRecipesPreview([
+    const recipe = await recipes_utils.searchRecipes([
       "663559",
       "642582",
       "655705",
