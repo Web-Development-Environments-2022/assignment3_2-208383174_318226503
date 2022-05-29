@@ -2,8 +2,15 @@ var express = require("express");
 var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
 
+/**
+ * for testing
+ */
 router.get("/", (req, res) => res.send("im here"));
 
+/**
+ * Getting 3 random recipes
+ * Ror the Main Page
+ */
 router.get("/random", async (req, res, next) => {
   const user_id = req.session.user_id;
   let num_of_recipes = 3;
@@ -18,7 +25,11 @@ router.get("/random", async (req, res, next) => {
   }
 });
 
-router.get("/lastViewed", async (req, res, next) => {
+/**
+ * Getting the 3 recipes that the user last viewed
+ * For the Main Page
+ */
+router.get("/lastThreeViewed", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
     let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
@@ -45,7 +56,7 @@ router.get("/search", async (req, res, next) => {
 });
 
 /**
- * This path returns a full details of a recipe by its id
+ * Returns a full details of a recipe by its id
  * TODO- check if this is the function that will be called when wanting to see a full recipie
  */
 router.get("/:recipeId", async (req, res, next) => {
