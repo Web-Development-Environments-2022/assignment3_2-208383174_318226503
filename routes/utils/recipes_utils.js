@@ -3,9 +3,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
 
 /**
  * Get recipes list from spooncular response and extract the relevant recipe data for preview
- * @param {*} recipes_info
  */
-
 async function getRecipeInformation(recipe_id) {
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
@@ -15,7 +13,23 @@ async function getRecipeInformation(recipe_id) {
   });
 }
 
-async function getRecipeDetails(recipe_id) {
+/**
+ * accessing spooncular for a random recipe
+ */
+async function getRandomRecipiesFromSpooncular() {
+  const response = await axios.get(`${api_domain}/random`, {
+    params: {
+      number: 10,
+      apiKey: process.env.spooncular_apiKey,
+    },
+  });
+  return response;
+}
+
+/**
+ * get the recipe preview information
+ */
+async function getRecipePreview(recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
   let {
     id,
@@ -31,8 +45,8 @@ async function getRecipeDetails(recipe_id) {
   return {
     id: id,
     title: title,
-    readyInMinutes: readyInMinutes,
     image: image,
+    readyInMinutes: readyInMinutes,
     popularity: aggregateLikes,
     vegan: vegan,
     vegetarian: vegetarian,
@@ -40,66 +54,92 @@ async function getRecipeDetails(recipe_id) {
   };
 }
 
-async function getRecipesPreview(recipes_ids_list) {
+/**
+ * search for a list of recipes by id
+ * the use of promise means that the order of return may change
+ */
+async function searchRecipes(recipes_ids_list) {
   let promises = [];
   recipes_ids_list.map((id) => {
-    promises.push(getRecipeInformation(id));
+    promises.push(getRecipePreview(id));
   });
   let info_res = await Promise.all(promises);
-  return extractPreviewRecipeDetails(info_res);
+  return info_res;
 }
 
-async function getRandomRecipiesFromSpooncular() {
-  const response = await axios.get(`${api_domain}/random`, {
-    params: {
-      number: 10,
-      apiKey: process.env.spooncular_apiKey,
-    },
-  });
-  return response;
-}
-
+/**
+ * retrieving the wanted number of random recipes
+ */
 async function getRandomRecipies(num_of_recipes) {
   let random_pool = await getRandomRecipiesFromSpooncular();
   // TODO- additional line for filltering from lab8
   let recipes = random_pool.data.recipes;
   let selected_recipes = [];
   for (let i = 0; i < num_of_recipes; i++) {
-    selected_recipes.push(recipes[i]);
+    let id = recipes[i].id;
+    selected_recipes.push(getRecipePreview(id));
   }
-  return extractPreviewRecipeDetails(selected_recipes);
+  return await Promise.all(selected_recipes);
 }
 
-function extractPreviewRecipeDetails(recipes_info) {
-  return recipes_info.map((recipe_info) => {
-    //check the data type so it can work with diffrent types of data
-    let data = recipe_info;
-    if (recipe_info.data) {
-      data = recipe_info.data;
-    }
-    const {
-      id,
-      title,
-      readyInMinutes,
-      image,
-      aggregateLikes,
-      vegan,
-      vegetarian,
-      glutenFree,
-    } = data;
-    return {
-      id: id,
-      title: title,
-      image: image,
-      readyInMinutes: readyInMinutes,
-      popularity: aggregateLikes,
-      vegan: vegan,
-      vegetarian: vegetarian,
-      glutenFree: glutenFree,
-    };
-  });
+/**
+ * getting the full wanted information about a recipe
+ * this function does not contain the information from the preview
+ */
+async function getAdditionalInformation(recipe_id) {
+  let recipe_info = await getRecipeInformation(recipe_id);
+  let extendedIngredients = recipe_info.data.extendedIngredients;
+  let ingredientsAndQuantities = [];
+  let { analyzedInstructions, servings } = recipe_info.data;
+  for (let ingredient of extendedIngredients) {
+    let { originalName, amount } = ingredient;
+    ingredientsAndQuantities.push({
+      originalName: originalName,
+      amount: amount,
+    });
+  }
+  return {
+    ingredientsAndQuantities: ingredientsAndQuantities,
+    instructions: analyzedInstructions,
+    servings: servings,
+  };
 }
 
-exports.getRecipeDetails = getRecipeDetails;
+/**
+ * getting the full recipe details by id
+ * the details contains the preview plus the extra information
+ */
+async function getRecipeDetails(recipe_id) {
+  let recipe_info = await getRecipePreview(recipe_id);
+  let { ingredientsAndQuantities, instructions, servings } =
+    await getAdditionalInformation(recipe_id);
+  let {
+    id,
+    title,
+    readyInMinutes,
+    image,
+    aggregateLikes,
+    vegan,
+    vegetarian,
+    glutenFree,
+  } = recipe_info;
+
+  return {
+    id: id,
+    title: title,
+    image: image,
+    readyInMinutes: readyInMinutes,
+    popularity: aggregateLikes,
+    vegan: vegan,
+    vegetarian: vegetarian,
+    glutenFree: glutenFree,
+    ingredientsAndQuantities: ingredientsAndQuantities,
+    instructions: instructions,
+    servingSize: servings,
+  };
+}
+
+exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
-exports.getRecipesPreview = getRecipesPreview;
+exports.searchRecipes = searchRecipes;
+exports.getRecipeDetails = getRecipeDetails;
