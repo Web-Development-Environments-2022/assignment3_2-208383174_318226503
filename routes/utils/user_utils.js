@@ -20,6 +20,21 @@ async function isRecipeFavorite(user_id, recipe_id) {
   return favoriteRecipe.length !== 0;
 }
 
+async function isRecipeViewed(user_id, recipe_id) {
+  const viewedRecipe = await DButils.execQuery(
+    `select * from usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
+  );
+  return viewedRecipe.length !== 0;
+}
+
+async function viewRecipe(user_id, recipe_id) {
+  const viewedRecipe = await DButils.execQuery(
+    `insert into usersrecipesviews values ('${user_id}',${recipe_id})`
+  );
+}
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
+exports.isRecipeViewed = isRecipeViewed;
+exports.viewRecipe = viewRecipe;

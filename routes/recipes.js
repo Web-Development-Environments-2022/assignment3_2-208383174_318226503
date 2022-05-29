@@ -41,10 +41,7 @@ router.get("/search", async (req, res, next) => {
 router.get("/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
-    const recipe = await recipes_utils.getRecipeDetails(
-      user_id,
-      req.params.recipeId
-    );
+    const recipe = await recipes_utils.viewRecipe(user_id, req.params.recipeId);
     res.send(recipe);
   } catch (error) {
     next(error);

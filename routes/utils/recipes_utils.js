@@ -33,6 +33,7 @@ async function getRandomRecipiesFromSpooncular() {
 async function getRecipePreview(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
   let is_favorite = await user_utils.isRecipeFavorite(user_id, recipe_id);
+  let is_viewed = await user_utils.isRecipeViewed(user_id, recipe_id);
   let {
     id,
     title,
@@ -54,6 +55,7 @@ async function getRecipePreview(user_id, recipe_id) {
     vegetarian: vegetarian,
     glutenFree: glutenFree,
     isFavorite: is_favorite,
+    isViewed: is_viewed,
   };
 }
 
@@ -125,7 +127,13 @@ async function getRecipeDetails(user_id, recipe_id) {
   };
 }
 
+async function viewRecipe(user_id, recipe_id) {
+  user_utils.viewRecipe(user_id, recipe_id);
+  return getRecipeDetails(user_id, recipe_id);
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
 exports.getRecipeDetails = getRecipeDetails;
+exports.viewRecipe = viewRecipe;
