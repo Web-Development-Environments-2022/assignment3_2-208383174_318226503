@@ -18,6 +18,16 @@ router.get("/random", async (req, res, next) => {
   }
 });
 
+router.get("/lastViewed", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  try {
+    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
+    res.send(last_viewed_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
 /** TODO- getRecipesPreview: to use in 8- search recepies */
 router.get("/search", async (req, res, next) => {
   const user_id = req.session.user_id;

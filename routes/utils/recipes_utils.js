@@ -128,8 +128,18 @@ async function getRecipeDetails(user_id, recipe_id) {
 }
 
 async function viewRecipe(user_id, recipe_id) {
-  user_utils.viewRecipe(user_id, recipe_id);
+  await user_utils.viewRecipe(user_id, recipe_id);
   return getRecipeDetails(user_id, recipe_id);
+}
+
+async function getNewestViewed(user_id, num_of_recipes) {
+  recipes_id = await user_utils.getNewestViewedRecipes(user_id, num_of_recipes);
+  let recipes_details = [];
+  for (let i = 0; i < num_of_recipes; i++) {
+    recipes_details.push(getRecipePreview(user_id, recipes_id[i].recipe_id));
+  }
+  let info_res = await Promise.all(recipes_details);
+  return info_res;
 }
 
 exports.getRecipePreview = getRecipePreview;
@@ -137,3 +147,4 @@ exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
 exports.getRecipeDetails = getRecipeDetails;
 exports.viewRecipe = viewRecipe;
+exports.getNewestViewed = getNewestViewed;

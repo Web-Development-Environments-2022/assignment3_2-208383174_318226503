@@ -28,9 +28,24 @@ async function isRecipeViewed(user_id, recipe_id) {
 }
 
 async function viewRecipe(user_id, recipe_id) {
-  const viewedRecipe = await DButils.execQuery(
-    `insert into usersrecipesviews values ('${user_id}',${recipe_id})`
+  if (isRecipeViewed(user_id, recipe_id)) {
+    console.log(`the recipe was viewed`);
+    await DButils.execQuery(
+      `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
+    );
+  }
+  await DButils.execQuery(
+    `insert into usersRecipesviews values ('${user_id}',${recipe_id})`
   );
+}
+
+async function getNewestViewedRecipes(user_id, num_of_recipes) {
+  const recipes_id = await DButils.execQuery(
+    `SELECT recipe_id FROM  usersrecipesviews WHERE  user_id = ${user_id} ORDER  BY recipe_id DESC
+    LIMIT ${num_of_recipes};
+    `
+  );
+  return recipes_id;
 }
 
 exports.markAsFavorite = markAsFavorite;
@@ -38,3 +53,4 @@ exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
 exports.isRecipeViewed = isRecipeViewed;
 exports.viewRecipe = viewRecipe;
+exports.getNewestViewedRecipes = getNewestViewedRecipes;
