@@ -1,5 +1,5 @@
 const axios = require("axios");
-const user_utils = require("./DbFunctionality_utils");
+const dbFunctionality_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
 /**
@@ -34,8 +34,11 @@ async function getRecipePreview(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
   let { is_favorite, is_viewed } = false;
   if (user_id != undefined) {
-    is_favorite = await user_utils.isRecipeFavorite(user_id, recipe_id);
-    is_viewed = await user_utils.isRecipeViewed(user_id, recipe_id);
+    is_favorite = await dbFunctionality_utils.isRecipeFavorite(
+      user_id,
+      recipe_id
+    );
+    is_viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
   }
   return await createPreviewObject(recipe_info, is_favorite, is_viewed);
 }
@@ -121,7 +124,6 @@ async function getAdditionalInformation(recipe_id) {
  */
 async function getRecipeDetails(user_id, recipe_id) {
   console.log("getting recipie info");
-  let recipe_info = await getRecipePreview(user_id, recipe_id);
   let { ingredientsAndQuantities, instructions, servings } =
     await getAdditionalInformation(recipe_id);
   let preview = await getRecipePreview(user_id, recipe_id);
@@ -137,7 +139,7 @@ async function getRecipeDetails(user_id, recipe_id) {
 async function viewRecipe(user_id, recipe_id) {
   if (user_id != undefined) {
     console.log("defined " + user_id);
-    await user_utils.viewRecipe(user_id, recipe_id);
+    await dbFunctionality_utils.viewRecipe(user_id, recipe_id);
   }
   console.log("getRecipeDetails ");
   return await getRecipeDetails(user_id, recipe_id);
@@ -156,7 +158,7 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     instructions,
   } = recipe_info.body;
 
-  await user_utils.addNewRecipeToDb(
+  await dbFunctionality_utils.addNewRecipeToDb(
     user_id,
     title,
     image,
@@ -170,9 +172,19 @@ async function addNewRecipeByUser(user_id, recipe_info) {
   );
 }
 
+async function getRecipeAddedByUser(user_id, recipe_id) {
+  let recipe = await dbFunctionality_utils.getRecipe(user_id, recipe_id);
+  let ingredients = dbFunctionality_utils.getIngredients(recipe_id);
+  let instructionsawait = dbFunctionality_utils.getInstructions(recipe_id);
+  console.log(recipe);
+  console.log(ingredients);
+  console.log(instructionsawait);
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
 exports.getRecipeDetails = getRecipeDetails;
 exports.viewRecipe = viewRecipe;
 exports.addNewRecipeByUser = addNewRecipeByUser;
+exports.getRecipeAddedByUser = getRecipeAddedByUser;
