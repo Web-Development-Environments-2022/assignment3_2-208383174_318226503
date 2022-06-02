@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const DButils = require("./utils/DButils");
-const user_utils = require("./utils/DbFunctionality_utils");
+const dbFunctionality_utils = require("./utils/DbFunctionality_utils");
 const recipes_utils = require("./utils/recipes_utils");
 
 /**
@@ -31,7 +31,7 @@ router.post("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
-    await user_utils.markAsFavorite(user_id, recipe_id);
+    await dbFunctionality_utils.markAsFavorite(user_id, recipe_id);
     res.status(200).send("The Recipe successfully saved as favorite");
   } catch (error) {
     next(error);
@@ -44,12 +44,14 @@ router.post("/favorites", async (req, res, next) => {
 router.get("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    let favorite_recipes = {};
-    const recipes_id = await user_utils.getFavoriteRecipes(user_id);
-    let recipes_id_array = [];
-    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-    const results = await recipe_utils.getRecipesPreview(recipes_id_array);
-    res.status(200).send(results);
+    const favorite_recipes = await recipes_utils.getFavoriteRecipes(user_id);
+    // let recipes_id_array = [];
+    // recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+    // const results = await recipes_utils.getRecipePreview(
+    //   user_id,
+    //   recipes_id_array
+    // );
+    res.status(200).send(favorite_recipes);
   } catch (error) {
     next(error);
   }
@@ -57,10 +59,22 @@ router.get("/favorites", async (req, res, next) => {
 
 router.post("/add", async (req, res, next) => {
   const user_id = req.session.user_id;
-  console.log("adding");
   try {
     let new_recipe = await recipes_utils.addNewRecipeByUser(user_id, req);
     res.send(new_recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/myRecipes", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipes_id = await dbFunctionality_utils.getCustomRecipes(user_id);
+    let recipes_id_array = [];
+    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+    const results = await recipe_utils.getCustomRecipes(recipes_id_array);
+    res.status(200).send(results);
   } catch (error) {
     next(error);
   }

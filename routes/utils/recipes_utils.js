@@ -181,6 +181,15 @@ async function getRecipeAddedByUser(user_id, recipe_id) {
   console.log(instructionsawait);
 }
 
+async function getFavoriteRecipes(user_id) {
+  let recipes_ids = await dbFunctionality_utils.getFavoriteRecipes(user_id);
+  let recipes_preview = [];
+  for (let recipe of recipes_ids) {
+    recipes_preview.push(await getRecipePreview(user_id, recipe.recipe_id));
+  }
+  return recipes_preview;
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -188,3 +197,4 @@ exports.getRecipeDetails = getRecipeDetails;
 exports.viewRecipe = viewRecipe;
 exports.addNewRecipeByUser = addNewRecipeByUser;
 exports.getRecipeAddedByUser = getRecipeAddedByUser;
+exports.getFavoriteRecipes = getFavoriteRecipes;
