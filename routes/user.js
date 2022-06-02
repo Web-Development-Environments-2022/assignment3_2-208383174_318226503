@@ -1,8 +1,8 @@
 var express = require("express");
 var router = express.Router();
 const DButils = require("./utils/DButils");
-const user_utils = require("./utils/user_utils");
-const recipe_utils = require("./utils/recipes_utils");
+const user_utils = require("./utils/DbFunctionality_utils");
+const recipes_utils = require("./utils/recipes_utils");
 
 /**
  * Authenticate all incoming requests by middleware
@@ -50,6 +50,17 @@ router.get("/favorites", async (req, res, next) => {
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
     const results = await recipe_utils.getRecipesPreview(recipes_id_array);
     res.status(200).send(results);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/add", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  console.log("adding");
+  try {
+    let new_recipe = await recipes_utils.addNewRecipeByUser(user_id, req);
+    res.send(new_recipe);
   } catch (error) {
     next(error);
   }

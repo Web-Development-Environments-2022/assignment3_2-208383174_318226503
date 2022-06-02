@@ -1,5 +1,5 @@
 const axios = require("axios");
-const user_utils = require("./user_utils");
+const user_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
 /**
@@ -37,6 +37,10 @@ async function getRecipePreview(user_id, recipe_id) {
     is_favorite = await user_utils.isRecipeFavorite(user_id, recipe_id);
     is_viewed = await user_utils.isRecipeViewed(user_id, recipe_id);
   }
+  return await createPreviewObject(recipe_info, is_favorite, is_viewed);
+}
+
+async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
   let {
     id,
     title,
@@ -82,15 +86,17 @@ async function getRandomRecipies(user_id, num_of_recipes) {
 }
 
 /**
- * getting the full wanted information about a recipe
- * this function does not contain the information from the preview
+ * Getting the full wanted information about a recipe
+ * Does not contain the information from the preview
  */
 async function getAdditionalInformation(recipe_id) {
   // TODO- make sure about the ingredient name & instructions
   let recipe_info = await getRecipeInformation(recipe_id);
   let extendedIngredients = recipe_info.data.extendedIngredients;
+  let analyzedInstructions = recipe_info.data.analyzedInstructions[0].steps;
   let ingredientsAndQuantities = [];
-  let { analyzedInstructions, servings } = recipe_info.data;
+  let instructions = [];
+
   for (let ingredient of extendedIngredients) {
     let { originalName, amount } = ingredient;
     ingredientsAndQuantities.push({
@@ -98,24 +104,30 @@ async function getAdditionalInformation(recipe_id) {
       amount: amount,
     });
   }
+  for (let instruction of analyzedInstructions) {
+    let { number, step } = instruction;
+    instructions.push({ number: number, step: step });
+  }
   return {
     ingredientsAndQuantities: ingredientsAndQuantities,
-    instructions: analyzedInstructions,
-    servings: servings,
+    instructions: instructions,
+    servings: recipe_info.data.servings,
   };
 }
 
 /**
- * getting the full recipe details by id
- * the details contains the preview plus the extra information
+ * Getting the full recipe details by id
+ * The details contains the preview plus the extra information
  */
 async function getRecipeDetails(user_id, recipe_id) {
   console.log("getting recipie info");
   let recipe_info = await getRecipePreview(user_id, recipe_id);
   let { ingredientsAndQuantities, instructions, servings } =
     await getAdditionalInformation(recipe_id);
+  let preview = await getRecipePreview(user_id, recipe_id);
+
   return {
-    previewInfo: recipe_info,
+    previewInfo: preview,
     ingredientsAndQuantities: ingredientsAndQuantities,
     instructions: instructions,
     servingSize: servings,
@@ -131,8 +143,36 @@ async function viewRecipe(user_id, recipe_id) {
   return await getRecipeDetails(user_id, recipe_id);
 }
 
+async function addNewRecipeByUser(user_id, recipe_info) {
+  let {
+    title,
+    image,
+    readyInMinutes,
+    vegan,
+    vegetarian,
+    glutenFree,
+    servingSize,
+    ingredientsAndQuantities,
+    instructions,
+  } = recipe_info.body;
+
+  await user_utils.addNewRecipeToDb(
+    user_id,
+    title,
+    image,
+    readyInMinutes,
+    vegan,
+    vegetarian,
+    glutenFree,
+    servingSize,
+    ingredientsAndQuantities,
+    instructions
+  );
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
 exports.getRecipeDetails = getRecipeDetails;
 exports.viewRecipe = viewRecipe;
+exports.addNewRecipeByUser = addNewRecipeByUser;

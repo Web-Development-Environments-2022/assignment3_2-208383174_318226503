@@ -21,46 +21,22 @@ async function isRecipeFavorite(user_id, recipe_id) {
 }
 
 async function isRecipeViewed(user_id, recipe_id) {
-  // viewed = await DButils.execQuery(
-  //   "SELECT user_id AND recipe_id from usersRecipesViews"
-  // );
-  // if (viewed.find((x) => x.user_id === user_id && x.recipe_id === recipe_id)) {
-  //   console.log(`recipe ${recipe_id} was viewed by ${user_id}`);
-  //   return true;
-  // }
-  // console.log(`recipe ${recipe_id} was NOT viewed by ${user_id}`);
-  // return false;
-
   const viewedRecipe = await DButils.execQuery(
     `select * from usersRecipesViews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
   );
-
-  // console.log(viewedRecipe);
-  // console.log(viewedRecipe.length);
-  // return !(viewedRecipe.length === 0);
-  if (!(viewedRecipe.length === 0)) {
-    console.log(`recipe ${recipe_id} was viewed by ${user_id}`);
-    return true;
-  } else {
-    console.log(`recipe ${recipe_id} was NOT viewed by ${user_id}`);
-    return false;
-  }
+  return !(viewedRecipe.length === 0);
 }
 
 async function viewRecipe(user_id, recipe_id) {
   let isViewed = await isRecipeViewed(user_id, recipe_id);
-  console.log("is viweed value is " + isViewed);
   if (isViewed) {
     await DButils.execQuery(
       `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
     );
-    console.log("deleting");
   }
-  console.log("inserting");
   await DButils.execQuery(
     `insert into usersrecipesviews values ('${user_id}',${recipe_id})`
   );
-  console.log("done inserting");
 }
 
 async function getNewestViewedRecipes(user_id, num_of_recipes) {
@@ -72,9 +48,59 @@ async function getNewestViewedRecipes(user_id, num_of_recipes) {
   return recipes_id;
 }
 
+async function addNewRecipeToDb(
+  user_id,
+  title,
+  image,
+  readyInMinutes,
+  vegan,
+  vegetarian,
+  glutenFree,
+  servingSize,
+  ingredientsAndQuantities,
+  instructions
+) {
+  try {
+    popularity = 0;
+    await DButils.execQuery(
+      `INSERT INTO usersCustomRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}','${vegan}','${vegetarian}','${glutenFree}', '${servingSize}')`
+    );
+  } catch {
+    throw { status: 409, message: "you already have a recipe with that title" };
+  }
+  const recipe_id = await DButils.execQuery(
+    `select recipe_id as id from usersCustomRecipes where user_id='${user_id}' AND title='${title}'`
+  );
+  let id = recipe_id[0].id;
+  await addIngredientsAndQuantities(id, ingredientsAndQuantities);
+  await addInstructions(id, instructions);
+}
+
+async function addInstructions(recipe_id, instructions) {
+  for (let instruction of instructions) {
+    let { number, step } = instruction;
+    await DButils.execQuery(
+      `insert into instructions values ('${number}','${step}','${recipe_id}')`
+    );
+  }
+}
+
+async function addIngredientsAndQuantities(
+  recipe_id,
+  ingredientsAndQuantities
+) {
+  for (let ingredient of ingredientsAndQuantities) {
+    let { originalName, amount } = ingredient;
+    await DButils.execQuery(
+      `insert into ingredientsAndQuantities values ('${originalName}','${amount}','${recipe_id}')`
+    );
+  }
+}
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
 exports.isRecipeViewed = isRecipeViewed;
 exports.viewRecipe = viewRecipe;
 exports.getNewestViewedRecipes = getNewestViewedRecipes;
+exports.addNewRecipeToDb = addNewRecipeToDb;
