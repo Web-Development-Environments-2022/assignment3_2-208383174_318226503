@@ -13,6 +13,13 @@ async function getFavoriteRecipes(user_id) {
   return recipes_id;
 }
 
+async function getPersonalRecipes(user_id) {
+  const recipes_id = await DButils.execQuery(
+    `select recipe_id from usersPersonalRecipes where user_id='${user_id}'`
+  );
+  return recipes_id;
+}
+
 async function isRecipeFavorite(user_id, recipe_id) {
   const favoriteRecipe = await DButils.execQuery(
     `select * from FavoriteRecipes where user_id='${user_id}' AND recipe_id='${recipe_id}'`
@@ -62,7 +69,7 @@ async function addNewRecipeToDb(
 ) {
   popularity = 0;
   const newRecipe = await DButils.execQuery(
-    `INSERT INTO usersCustomRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}','${vegan}','${vegetarian}','${glutenFree}', '${servingSize}')`
+    `INSERT INTO usersPersonalRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}','${vegan}','${vegetarian}','${glutenFree}', '${servingSize}')`
   );
   let id = newRecipe.insertId;
   await addIngredientsAndQuantities(id, ingredientsAndQuantities);
@@ -90,27 +97,22 @@ async function addIngredientsAndQuantities(
   }
 }
 
-async function getRecipe(user_id, recipe_id) {
-  return await DButils.execQuery(
-    `SELECT * FROM usersCustomRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
+async function getPersonalRecipe(recipe_id) {
+  const personalRecipe = await DButils.execQuery(
+    `SELECT * FROM usersPersonalRecipes WHERE recipe_id = ${recipe_id}`
   );
-}
-
-async function getRecipe(user_id, recipe_id) {
-  return await DButils.execQuery(
-    `SELECT * FROM usersCustomRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
-  );
+  return personalRecipe[0];
 }
 
 async function getIngredients(recipe_id) {
   return await DButils.execQuery(
-    `SELECT * FROM ingredientsAndQuantities WHERE recipe_id = ${recipe_id}`
+    `SELECT * FROM ingredientsAndQuantities WHERE recipe_id_ingredients = ${recipe_id}`
   );
 }
 
 async function getInstructions(recipe_id) {
   return await DButils.execQuery(
-    `SELECT * FROM instructions WHERE recipe_id = ${recipe_id}`
+    `SELECT * FROM instructions WHERE recipe_id_instructions = ${recipe_id}`
   );
 }
 
@@ -121,6 +123,7 @@ exports.isRecipeViewed = isRecipeViewed;
 exports.viewRecipe = viewRecipe;
 exports.getNewestViewedRecipes = getNewestViewedRecipes;
 exports.addNewRecipeToDb = addNewRecipeToDb;
-exports.getRecipe = getRecipe;
+exports.getPersonalRecipe = getPersonalRecipe;
 exports.getIngredients = getIngredients;
 exports.getInstructions = getInstructions;
+exports.getPersonalRecipes = getPersonalRecipes;
