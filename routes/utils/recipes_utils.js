@@ -32,8 +32,11 @@ async function getRandomRecipiesFromSpooncular() {
  */
 async function getRecipePreview(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
-  let is_favorite = await user_utils.isRecipeFavorite(user_id, recipe_id);
-  let is_viewed = await user_utils.isRecipeViewed(user_id, recipe_id);
+  let { is_favorite, is_viewed } = false;
+  if (user_id != undefined) {
+    is_favorite = await user_utils.isRecipeFavorite(user_id, recipe_id);
+    is_viewed = await user_utils.isRecipeViewed(user_id, recipe_id);
+  }
   let {
     id,
     title,
@@ -59,17 +62,8 @@ async function getRecipePreview(user_id, recipe_id) {
   };
 }
 
-/**
- * search for a list of recipes by id
- * the use of promise means that the order of return may change
- */
-async function searchRecipes(user_id, recipes_ids_list) {
-  let promises = [];
-  recipes_ids_list.map((recipes_id) => {
-    promises.push(getRecipePreview(user_id, recipes_id));
-  });
-  let info_res = await Promise.all(promises);
-  return info_res;
+async function searchRecipes(user_id, num_of_recipes) {
+  return getRandomRecipies(user_id, num_of_recipes);
 }
 
 /**
@@ -116,6 +110,7 @@ async function getAdditionalInformation(recipe_id) {
  * the details contains the preview plus the extra information
  */
 async function getRecipeDetails(user_id, recipe_id) {
+  console.log("getting recipie info");
   let recipe_info = await getRecipePreview(user_id, recipe_id);
   let { ingredientsAndQuantities, instructions, servings } =
     await getAdditionalInformation(recipe_id);
@@ -128,18 +123,12 @@ async function getRecipeDetails(user_id, recipe_id) {
 }
 
 async function viewRecipe(user_id, recipe_id) {
-  await user_utils.viewRecipe(user_id, recipe_id);
-  return getRecipeDetails(user_id, recipe_id);
-}
-
-async function getNewestViewed(user_id, num_of_recipes) {
-  recipes_id = await user_utils.getNewestViewedRecipes(user_id, num_of_recipes);
-  let recipes_details = [];
-  for (let i = 0; i < num_of_recipes; i++) {
-    recipes_details.push(getRecipePreview(user_id, recipes_id[i].recipe_id));
+  if (user_id != undefined) {
+    console.log("defined " + user_id);
+    await user_utils.viewRecipe(user_id, recipe_id);
   }
-  let info_res = await Promise.all(recipes_details);
-  return info_res;
+  console.log("getRecipeDetails ");
+  return await getRecipeDetails(user_id, recipe_id);
 }
 
 exports.getRecipePreview = getRecipePreview;
@@ -147,4 +136,3 @@ exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
 exports.getRecipeDetails = getRecipeDetails;
 exports.viewRecipe = viewRecipe;
-exports.getNewestViewed = getNewestViewed;

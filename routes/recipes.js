@@ -39,16 +39,33 @@ router.get("/lastThreeViewed", async (req, res, next) => {
   }
 });
 
-/** TODO- getRecipesPreview: to use in 8- search recepies */
+/**
+ * Getting the preview for a recipe
+ * does not mark the recipe as "viewed"
+ */
+router.post("/preview", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  const recipe_id = req.body.recipe_id;
+  try {
+    let recipe_preview = await recipes_utils.getRecipePreview(
+      user_id,
+      recipe_id
+    );
+    res.send(recipe_preview);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/** TODO- wip */
 router.get("/search", async (req, res, next) => {
+  let num_of_recipes = req.query.numOfResults;
+  if (num_of_recipes === undefined) {
+    num_of_recipes = 5;
+  }
   const user_id = req.session.user_id;
   try {
-    const recipe = await recipes_utils.searchRecipes(user_id, [
-      "663559",
-      "642582",
-      "655705",
-      "642100",
-    ]);
+    const recipe = await recipes_utils.searchRecipes(user_id, num_of_recipes);
     res.send(recipe);
   } catch (error) {
     next(error);
