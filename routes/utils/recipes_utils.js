@@ -36,7 +36,6 @@ async function getRecipePreview(user_id, recipe_id) {
   let is_favorite = false;
   let is_viewed = false;
   if (user_id != undefined) {
-    console.log("user_id is not undefined");
     is_favorite = await dbFunctionality_utils.isRecipeFavorite(
       user_id,
       recipe_id
@@ -97,8 +96,61 @@ async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
  * Dummy function for searching recipies
  * For now- getting random
  */
-async function searchRecipes(user_id, num_of_recipes) {
-  return getRandomRecipies(user_id, num_of_recipes);
+async function searchRecipes(
+  user_id,
+  search_term,
+  cuisine,
+  diet,
+  intolerance,
+  num_of_recipes
+) {
+  if (num_of_recipes === undefined) {
+    num_of_recipes = 5;
+  }
+  let search_pool = await getSearchSpooncular(
+    search_term,
+    cuisine,
+    diet,
+    intolerance,
+    num_of_recipes
+  );
+  let recipes = search_pool.data.results;
+  let selected_recipes = [];
+  for (let i = 0; i < num_of_recipes; i++) {
+    let recipe_id = recipes[i].id;
+    selected_recipes.push(getRecipePreview(user_id, recipe_id));
+  }
+  return await Promise.all(selected_recipes);
+}
+
+async function getSearchSpooncular(
+  search_term,
+  cuisine,
+  diet,
+  intolerance,
+  num_of_recipes
+) {
+  let request_url = `${api_domain}/complexSearch?query=${search_term}`;
+  if (cuisine !== undefined) {
+    request_url = request_url.concat(`&cuisine=${cuisine}`);
+  }
+  if (diet !== undefined) {
+    request_url = request_url.concat(`&diet=${diet}`);
+  }
+  if (intolerance !== undefined) {
+    request_url = request_url.concat(`&intolerance=${intolerance}`);
+  }
+  const response = await axios.get(request_url, {
+    params: {
+      number: num_of_recipes,
+      apiKey: process.env.spooncular_apiKey,
+    },
+  });
+  console.log(`request_url ${request_url}`);
+  console.log(`response ${response}`);
+  console.log(`response ${response.data}`);
+  console.log(`response ${response.data.results[0]}`);
+  return response;
 }
 
 async function getNewestViewed(user_id, num_of_recipes) {

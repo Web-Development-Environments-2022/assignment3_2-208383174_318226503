@@ -38,6 +38,29 @@ router.post("/preview", async (req, res, next) => {
   }
 });
 
+/** TODO- wip - DOES NOT WORK */
+router.get("/search", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  const search_term = req.query.term;
+  const cuisine = req.query.cuisine;
+  const diet = req.query.diet;
+  const intolerance = req.query.intolerance;
+  const num_of_recipes = req.query.numOfResults;
+  try {
+    const recipe = await recipes_utils.searchRecipes(
+      user_id,
+      search_term,
+      cuisine,
+      diet,
+      intolerance,
+      num_of_recipes
+    );
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
 /**
  * Returns a full details of a recipe by its id
  */
@@ -45,21 +68,6 @@ router.get("/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
     const recipe = await recipes_utils.viewRecipe(user_id, req.params.recipeId);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
-/** TODO- wip - DOES NOT WORK */
-router.get("/search", async (req, res, next) => {
-  let num_of_recipes = req.query.numOfResults;
-  if (num_of_recipes === undefined) {
-    num_of_recipes = 5;
-  }
-  const user_id = req.session.user_id;
-  try {
-    const recipe = await recipes_utils.searchRecipes(user_id, num_of_recipes);
     res.send(recipe);
   } catch (error) {
     next(error);

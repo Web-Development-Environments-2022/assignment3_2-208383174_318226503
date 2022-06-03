@@ -55,10 +55,11 @@ router.get("/favorites", async (req, res, next) => {
  * Adding a new personal recipe by a user
  */
 router.post("/add", async (req, res, next) => {
+  console.log("adding new recipe");
   const user_id = req.session.user_id;
   try {
-    let new_recipe = await recipes_utils.addNewRecipeByUser(user_id, req);
-    res.send(new_recipe);
+    await recipes_utils.addNewRecipeByUser(user_id, req);
+    res.status(200).send("New Personal Recipe successfully saved");
   } catch (error) {
     next(error);
   }

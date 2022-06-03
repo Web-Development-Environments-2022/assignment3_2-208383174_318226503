@@ -67,10 +67,12 @@ async function addNewRecipeToDb(
   ingredientsAndQuantities,
   instructions
 ) {
+  console.log("adding new recipe to db");
   popularity = 0;
   const newRecipe = await DButils.execQuery(
     `INSERT INTO usersPersonalRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}','${vegan}','${vegetarian}','${glutenFree}', '${servingSize}')`
   );
+  console.log("finished adding to userPersonalRecipes");
   let id = newRecipe.insertId;
   await addIngredientsAndQuantities(id, ingredientsAndQuantities);
   await addInstructions(id, instructions);
@@ -83,6 +85,7 @@ async function addInstructions(recipe_id, instructions) {
       `insert into instructions values ('${number}','${step}','${recipe_id}')`
     );
   }
+  console.log("finish insert to instructions");
 }
 
 async function addIngredientsAndQuantities(
@@ -95,6 +98,7 @@ async function addIngredientsAndQuantities(
       `insert into ingredientsAndQuantities values ('${originalName}','${amount}','${recipe_id}')`
     );
   }
+  console.log("finish insert to ingredientsAndQuantities");
 }
 
 async function getPersonalRecipe(recipe_id) {
