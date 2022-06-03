@@ -51,6 +51,9 @@ router.get("/favorites", async (req, res, next) => {
   }
 });
 
+/**
+ * Adding a new personal recipe by a user
+ */
 router.post("/add", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
@@ -61,11 +64,28 @@ router.post("/add", async (req, res, next) => {
   }
 });
 
+/**
+ * Getting all the personal recipes by a user
+ */
 router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const personal_recipes = await recipes_utils.getPersonalRecipes(user_id);
     res.status(200).send(personal_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * Getting the 3 recipes that the user last viewed
+ * For the Main Page
+ */
+router.get("/lastThreeViewed", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  try {
+    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
+    res.send(last_viewed_recipes);
   } catch (error) {
     next(error);
   }
