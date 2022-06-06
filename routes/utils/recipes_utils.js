@@ -102,7 +102,8 @@ async function searchRecipes(
   cuisine,
   diet,
   intolerance,
-  num_of_recipes
+  num_of_recipes,
+  sort
 ) {
   if (num_of_recipes === undefined) {
     num_of_recipes = 5;
@@ -112,9 +113,11 @@ async function searchRecipes(
     cuisine,
     diet,
     intolerance,
-    num_of_recipes
+    num_of_recipes,
+    sort
   );
   let recipes = search_pool.data.results;
+
   let selected_recipes = [];
   for (let i = 0; i < num_of_recipes; i++) {
     let recipe_id = recipes[i].id;
@@ -123,12 +126,26 @@ async function searchRecipes(
   return await Promise.all(selected_recipes);
 }
 
+async function sortByReadyInMinutes() {}
+
+function compareByReadyInMinutes(recipe_a, recipe_b) {
+  console.log(`recipe a ${recipe_a}`);
+  console.log(`recipe a readyInMinutes ${recipe_a.cookingMinutes}`);
+  // console.log(
+  //   `recipe a ${recipe_a.readyInMinutes} recipe b ${
+  //     recipe_b.readyInMinutes
+  //   } ans ${recipe_a.data.readyInMinutes - recipe_b.readyInMinutes}`
+  // );
+  return recipe_a.readyInMinutes - recipe_b.readyInMinutes;
+}
+
 async function getSearchSpooncular(
   search_term,
   cuisine,
   diet,
   intolerance,
-  num_of_recipes
+  num_of_recipes,
+  sort
 ) {
   let request_url = `${api_domain}/complexSearch?query=${search_term}`;
   if (cuisine !== undefined) {
@@ -140,16 +157,20 @@ async function getSearchSpooncular(
   if (intolerance !== undefined) {
     request_url = request_url.concat(`&intolerance=${intolerance}`);
   }
+  if (sort === "time") {
+    console.log("yse time");
+    request_url = request_url.concat(`&sort=time`); // TODO- change lowest to higest
+  }
+  if (sort === "popularity") {
+    console.log("yse popularity");
+    request_url = request_url.concat(`&sort=popularity`);
+  }
   const response = await axios.get(request_url, {
     params: {
       number: num_of_recipes,
       apiKey: process.env.spooncular_apiKey,
     },
   });
-  console.log(`request_url ${request_url}`);
-  console.log(`response ${response}`);
-  console.log(`response ${response.data}`);
-  console.log(`response ${response.data.results[0]}`);
   return response;
 }
 

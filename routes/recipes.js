@@ -46,6 +46,7 @@ router.get("/search", async (req, res, next) => {
   const diet = req.query.diet;
   const intolerance = req.query.intolerance;
   const num_of_recipes = req.query.numOfResults;
+  const sort = req.query.sort;
   try {
     const recipe = await recipes_utils.searchRecipes(
       user_id,
@@ -53,7 +54,8 @@ router.get("/search", async (req, res, next) => {
       cuisine,
       diet,
       intolerance,
-      num_of_recipes
+      num_of_recipes,
+      sort
     );
     res.send(recipe);
   } catch (error) {
