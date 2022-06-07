@@ -31,7 +31,6 @@ async function getRandomRecipiesFromSpooncular() {
  * Getting the recipe preview information
  */
 async function getRecipePreview(user_id, recipe_id) {
-  console.log("get recipe preview");
   let recipe_info = await getRecipeInformation(recipe_id);
   let is_favorite = false;
   let is_viewed = false;
@@ -117,26 +116,12 @@ async function searchRecipes(
     sort
   );
   let recipes = search_pool.data.results;
-
   let selected_recipes = [];
-  for (let i = 0; i < num_of_recipes; i++) {
+  for (let i = 0; i < recipes.length; i++) {
     let recipe_id = recipes[i].id;
     selected_recipes.push(getRecipePreview(user_id, recipe_id));
   }
   return await Promise.all(selected_recipes);
-}
-
-async function sortByReadyInMinutes() {}
-
-function compareByReadyInMinutes(recipe_a, recipe_b) {
-  console.log(`recipe a ${recipe_a}`);
-  console.log(`recipe a readyInMinutes ${recipe_a.cookingMinutes}`);
-  // console.log(
-  //   `recipe a ${recipe_a.readyInMinutes} recipe b ${
-  //     recipe_b.readyInMinutes
-  //   } ans ${recipe_a.data.readyInMinutes - recipe_b.readyInMinutes}`
-  // );
-  return recipe_a.readyInMinutes - recipe_b.readyInMinutes;
 }
 
 async function getSearchSpooncular(
@@ -158,11 +143,9 @@ async function getSearchSpooncular(
     request_url = request_url.concat(`&intolerance=${intolerance}`);
   }
   if (sort === "time") {
-    console.log("yse time");
-    request_url = request_url.concat(`&sort=time`); // TODO- change lowest to higest
+    request_url = request_url.concat(`&sort=time&sortDirection=asc`); // TODO- change lowest to higest
   }
   if (sort === "popularity") {
-    console.log("yse popularity");
     request_url = request_url.concat(`&sort=popularity`);
   }
   const response = await axios.get(request_url, {

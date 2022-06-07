@@ -57,7 +57,11 @@ router.get("/search", async (req, res, next) => {
       num_of_recipes,
       sort
     );
-    res.send(recipe);
+    if (recipe.length > 0) {
+      res.send(recipe);
+    } else {
+      res.status(204).send("no recipe was found");
+    }
   } catch (error) {
     next(error);
   }
