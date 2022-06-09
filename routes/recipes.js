@@ -71,14 +71,15 @@ router.get("/search", async (req, res, next) => {
 router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
-    const recipe = await recipes_utils.getanalyzedInstructions(req.params.recipeId);
+    const recipe = await recipes_utils.getanalyzedInstructions(
+      req.params.recipeId
+    );
     res.send(recipe);
   } catch (error) {
+    console.log("error");
     next(error);
   }
 });
-
-
 
 /**
  * Returns a full details of a recipe by its id
@@ -92,8 +93,5 @@ router.get("/:recipeId", async (req, res, next) => {
     next(error);
   }
 });
-
-
-
 
 module.exports = router;

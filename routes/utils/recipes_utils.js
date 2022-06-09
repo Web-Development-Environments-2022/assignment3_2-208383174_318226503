@@ -322,19 +322,61 @@ async function getPersonalRecipes(user_id) {
 
 /* bonus */
 async function getanalyzedInstructions(recipe_id) {
-  console.log("in function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  console.log(
+    "in function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+  );
   let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
-  console.log(request_url);
+  // console.log(request_url);
   const response = await axios.get(request_url, {
     params: {
       apiKey: process.env.spooncular_apiKey,
     },
   });
-  console.log("He response: "+ response)
-  return getRecipePreview(response[0].data.id);
+  // console.log("He response: " + response);
+
+  let elements = [];
+
+  for (let elem in response.data) {
+    let element = response.data[elem];
+
+    let steps = [];
+    for (let specific_step in element.steps) {
+      let equipments = [];
+      for (let specific_equipment in specific_step.equipment) {
+        let { name, image, temperature } = specific_equipment;
+        equipments.push({
+          name: name,
+          image: image,
+          temperature: temperature,
+        });
+      }
+      let ingredients = [];
+      for (let specific_ingredient in specific_step.ingredients) {
+        let { name, image } = specific_ingredient;
+        equipments.push({
+          name: name,
+          image: image,
+        });
+      }
+      let { number, step } = specific_step;
+      steps.push({
+        number: number,
+        step: step,
+        ingredients: ingredients,
+        equipment: equipments,
+      });
+    }
+    let name = element;
+    elements.push({
+      name: name,
+      steps: steps,
+    });
+  }
+  console.log(elements);
+  return {
+    analyzedInstructions: elements,
+  };
 }
-
-
 
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
