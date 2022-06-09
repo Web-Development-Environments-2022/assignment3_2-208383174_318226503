@@ -320,67 +320,64 @@ async function getPersonalRecipes(user_id) {
   return recipes_preview;
 }
 
-/* bonus */
-async function getanalyzedInstructions(recipe_id) {
-  console.log(
-    "in function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  );
+async function getAnalyzedInstructionSpoonacular(recipe_id) {
   let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
-  // console.log(request_url);
   const response = await axios.get(request_url, {
     params: {
       apiKey: process.env.spooncular_apiKey,
     },
   });
-  // console.log("He response: " + response);
+  return response;
+}
 
+/* bonus */
+async function getAnalyzedInstructions(recipe_id) {
+  let response = await getAnalyzedInstructionSpoonacular(recipe_id);
   let custom_elements = [];
 
   for (let elem in response.data) {
     let element = response.data[elem];
+    let all_steps = element.steps;
     let custom_steps = [];
-    let custom_equipments = [];
-    console.log(`555` + element.steps[0].equipment[0].name);
-    for (let specific_equipment in element.steps[0].equipment) {
-      console.log("4");
-      console.log("index " + specific_equipment);
-      console.log(specific_equipment[specific_equipment]);
-      let { name, image, temperature } = specific_equipment[specific_equipment];
-      console.log("equipment");
-      console.log(`name : ${name}`);
-      console.log(`image : ${image}`);
-      console.log(`temperature : ${temperature}`);
-      custom_equipments.push({
-        name: name,
-        image: image,
-        temperature: temperature,
-      });
-    }
-    let custom_ingredients = [];
-    for (let specific_ingredient in element.steps[0].ingredients) {
-      console.log("3");
 
-      let { name, image } = specific_ingredient;
-      custom_ingredients.push({
-        name: name,
-        image: image,
+    // iterating over each step
+    for (let i = 0; i < all_steps.length; i++) {
+      let custom_equipments = [];
+      let all_equipment = element.steps[i].equipment;
+
+      for (let j = 0; j < all_equipment.length; j++) {
+        let { name, image, temperature } = all_equipment[j];
+        custom_equipments.push({
+          name: name,
+          image: image,
+          temperature: temperature,
+        });
+      }
+      let all_ingredients = element.steps[i].ingredients;
+      let custom_ingredients = [];
+      for (let j = 0; j < all_ingredients.length; j++) {
+        let { name, image } = all_ingredients[j];
+        custom_ingredients.push({
+          name: name,
+          image: image,
+        });
+      }
+      let { number, step, length, temperature } = element.steps[i];
+      custom_steps.push({
+        number: number,
+        step: step,
+        ingredients: custom_ingredients,
+        equipment: custom_equipments,
+        temperature: temperature,
+        length: length,
       });
     }
-    let { number, step } = element;
-    custom_steps.push({
-      number: number,
-      step: step,
-      ingredients: custom_ingredients,
-      equipment: custom_equipments,
-    });
-    // }
     let name = element.name;
     custom_elements.push({
       name: name,
       steps: custom_steps,
     });
   }
-  console.log(custom_elements);
   return {
     analyzedInstructions: custom_elements,
   };
@@ -395,4 +392,4 @@ exports.addNewRecipeByUser = addNewRecipeByUser;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
-exports.getanalyzedInstructions = getanalyzedInstructions;
+exports.getAnalyzedInstructions = getAnalyzedInstructions;
