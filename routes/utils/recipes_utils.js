@@ -334,47 +334,55 @@ async function getanalyzedInstructions(recipe_id) {
   });
   // console.log("He response: " + response);
 
-  let elements = [];
+  let custom_elements = [];
 
   for (let elem in response.data) {
     let element = response.data[elem];
-
-    let steps = [];
-    for (let specific_step in element.steps) {
-      let equipments = [];
-      for (let specific_equipment in specific_step.equipment) {
-        let { name, image, temperature } = specific_equipment;
-        equipments.push({
-          name: name,
-          image: image,
-          temperature: temperature,
-        });
-      }
-      let ingredients = [];
-      for (let specific_ingredient in specific_step.ingredients) {
-        let { name, image } = specific_ingredient;
-        equipments.push({
-          name: name,
-          image: image,
-        });
-      }
-      let { number, step } = specific_step;
-      steps.push({
-        number: number,
-        step: step,
-        ingredients: ingredients,
-        equipment: equipments,
+    let custom_steps = [];
+    let custom_equipments = [];
+    console.log(`555` + element.steps[0].equipment[0].name);
+    for (let specific_equipment in element.steps[0].equipment) {
+      console.log("4");
+      console.log("index " + specific_equipment);
+      console.log(specific_equipment[specific_equipment]);
+      let { name, image, temperature } = specific_equipment[specific_equipment];
+      console.log("equipment");
+      console.log(`name : ${name}`);
+      console.log(`image : ${image}`);
+      console.log(`temperature : ${temperature}`);
+      custom_equipments.push({
+        name: name,
+        image: image,
+        temperature: temperature,
       });
     }
-    let name = element;
-    elements.push({
+    let custom_ingredients = [];
+    for (let specific_ingredient in element.steps[0].ingredients) {
+      console.log("3");
+
+      let { name, image } = specific_ingredient;
+      custom_ingredients.push({
+        name: name,
+        image: image,
+      });
+    }
+    let { number, step } = element;
+    custom_steps.push({
+      number: number,
+      step: step,
+      ingredients: custom_ingredients,
+      equipment: custom_equipments,
+    });
+    // }
+    let name = element.name;
+    custom_elements.push({
       name: name,
-      steps: steps,
+      steps: custom_steps,
     });
   }
-  console.log(elements);
+  console.log(custom_elements);
   return {
-    analyzedInstructions: elements,
+    analyzedInstructions: custom_elements,
   };
 }
 
