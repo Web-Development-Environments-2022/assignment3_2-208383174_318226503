@@ -320,22 +320,6 @@ async function getPersonalRecipes(user_id) {
   return recipes_preview;
 }
 
-/* bonus */
-async function getanalyzedInstructions(recipe_id) {
-  console.log("in function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
-  console.log(request_url);
-  const response = await axios.get(request_url, {
-    params: {
-      apiKey: process.env.spooncular_apiKey,
-    },
-  });
-  console.log("He response: "+ response)
-  return getRecipePreview(response[0].data.id);
-}
-
-
-
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -345,4 +329,3 @@ exports.addNewRecipeByUser = addNewRecipeByUser;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
-exports.getanalyzedInstructions = getanalyzedInstructions;
