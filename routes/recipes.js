@@ -81,6 +81,24 @@ router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
   }
 });
 
+
+/* bonus*/
+router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  try {
+    await recipes_utils.addRecipeToUpcommingMeal(user_id, req.params.recipeId, req.query.personal);
+    res.status(200).send("Recipe successfully added to Upcomming meal");
+  } catch (error) {
+    next(error);
+  }
+});
+
+//TODO: get UpcommingMeal recipes
+
+// TODO: put change recipe order in meal
+
+
+
 /**
  * Returns a full details of a recipe by its id
  */
