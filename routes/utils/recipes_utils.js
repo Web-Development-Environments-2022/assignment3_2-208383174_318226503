@@ -51,7 +51,7 @@ async function getRecipePreviewPersonal(user_id, recipe_id) {
   console.log(`user id ` + user_id + " recpe id " + recipe_id);
   let recipe_info = await getPersonalRecipePreview(recipe_id);
   let { is_favorite, is_viewed } = false;
-  if (user_id != undefined && user_id != -1) {
+  if (user_id != undefined) {
     is_favorite = await dbFunctionality_utils.isRecipeFavorite(
       user_id,
       recipe_id
@@ -405,3 +405,4 @@ exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
 exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.getPersonalFull = getPersonalFull;
+exports.getPersonalRecipePreview = getPersonalRecipePreview;

@@ -79,11 +79,22 @@ router.get("/myRecipes", async (req, res, next) => {
   }
 });
 
-router.get("/personalRecipeExtended", async (req, res, next) => {
+router.get("/personalPreview", async (req, res, next) => {
+  try {
+    const recipe_id = req.query.recipe_id;
+    const personal_recipes = await recipes_utils.getPersonalRecipePreview(
+      recipe_id
+    );
+    res.status(200).send(personal_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/personalExtended", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.query.recipe_id;
-    console.log("idddd " + recipe_id);
     const personal_recipes = await recipes_utils.getPersonalFull(
       user_id,
       recipe_id
