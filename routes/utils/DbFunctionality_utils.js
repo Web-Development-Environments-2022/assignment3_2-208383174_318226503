@@ -146,6 +146,7 @@ async function getOrderOfLastRecipe(user_id){
   return max_order;
 }
 
+
 async function getRecipesUpcommingMeal(user_id){
   return await DButils.execQuery(
     `SELECT recipe_id,is_personal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
@@ -195,3 +196,4 @@ exports.getPersonalRecipes = getPersonalRecipes;
 exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
 exports.getRecipesUpcommingMeal = getRecipesUpcommingMeal;
 exports.changeRecipeOrderInMeal = changeRecipeOrderInMeal;
+exports.getOrderOfLastRecipe = getOrderOfLastRecipe;

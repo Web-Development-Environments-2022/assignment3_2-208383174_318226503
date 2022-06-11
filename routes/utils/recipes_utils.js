@@ -396,13 +396,20 @@ async function getUpcommingMealRecipes(user_id){
   let recipes_preview = [];
   for (let recipe of recipes) {
     if (recipe.is_personal==1){
+      let r =await getRecipePreviewPersonal(user_id, recipe.recipe_id); 
+
       recipes_preview.push(
-        await getRecipePreviewPersonal(user_id, recipe.recipe_id)
+        {order:recipe.order_num,
+          recipe_preview: r
+        }
       );
     }
     else{
+      let r =await getRecipePreview(user_id, recipe.recipe_id); 
       recipes_preview.push(
-        await getRecipePreview(user_id,recipe.recipe_id)
+        {order:recipe.order_num,
+          recipe_preview: r
+        }
       );
     }
   }
@@ -415,6 +422,12 @@ async function changeRecipeOrder(user_id, recipeId, neworder){
   console.log(`the order of recipe number ${recipeId} was changed to ${neworder}`);
 }
 
+async function getNumOfUpcommingMealRecipes(user_id){
+  let num = await dbFunctionality_utils.getOrderOfLastRecipe(user_id);
+  num = num-1;
+  console.log(`num is : ${num}`);
+  return num;
+}
 
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
@@ -429,3 +442,4 @@ exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
 exports.getUpcommingMealRecipes = getUpcommingMealRecipes;
 exports.changeRecipeOrder = changeRecipeOrder;
+exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
