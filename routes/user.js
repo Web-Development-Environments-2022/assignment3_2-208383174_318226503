@@ -68,10 +68,26 @@ router.post("/add", async (req, res, next) => {
 /**
  * Getting all the personal recipes by a user
  */
+// TODO- return full recipe
 router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const personal_recipes = await recipes_utils.getPersonalRecipes(user_id);
+    res.status(200).send(personal_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/personalRecipeExtended", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipe_id = req.query.recipe_id;
+    console.log("idddd " + recipe_id);
+    const personal_recipes = await recipes_utils.getPersonalFull(
+      user_id,
+      recipe_id
+    );
     res.status(200).send(personal_recipes);
   } catch (error) {
     next(error);

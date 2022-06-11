@@ -51,7 +51,7 @@ async function getRecipePreviewPersonal(user_id, recipe_id) {
   console.log(`user id ` + user_id + " recpe id " + recipe_id);
   let recipe_info = await getPersonalRecipePreview(recipe_id);
   let { is_favorite, is_viewed } = false;
-  if (user_id != undefined) {
+  if (user_id != undefined && user_id != -1) {
     is_favorite = await dbFunctionality_utils.isRecipeFavorite(
       user_id,
       recipe_id
@@ -257,6 +257,7 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     servingSize,
     ingredientsAndQuantities,
     instructions,
+    analyzedInstructions,
   } = recipe_info.body;
 
   await dbFunctionality_utils.addNewRecipeToDb(
@@ -269,12 +270,22 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     glutenFree,
     servingSize,
     ingredientsAndQuantities,
-    instructions
+    instructions,
+    analyzedInstructions
   );
 }
 
-async function getRecipeAddedByUser(recipe_id) {
-  let recipe = await dbFunctionality_utils.getPersonalRecipe(recipe_id);
+async function getPersonalFull(user_id, recipe_id) {
+  const preview = await getRecipePreviewPersonal(user_id, recipe_id);
+  const additional =
+    await dbFunctionality_utils.getAdditionalInformationPersonal(recipe_id);
+  const ingredients = additional.ingredients;
+  const instructions = additional.instructions;
+  return { preview, ingredients, instructions };
+}
+
+async function getanalyzedInstructionsRecipeAddedByUser(recipe_id) {
+  let recipe = await dbFunctionality_utils.getAnalyzedRecipe(recipe_id);
   let recipe_info = {};
   let ingredients = await dbFunctionality_utils.getIngredients(recipe_id);
   let instructions = await dbFunctionality_utils.getInstructions(recipe_id);
@@ -284,16 +295,17 @@ async function getRecipeAddedByUser(recipe_id) {
  * Getting the personal recipe preview information
  */
 async function getPersonalRecipePreview(recipe_id) {
-  let recipe = await dbFunctionality_utils.getPersonalRecipe(recipe_id);
+  let recipe = await dbFunctionality_utils.getPersonalRecipePreview(recipe_id);
+  // TODO- popularity, watched, favorite
   return {
     id: recipe.recipe_id,
     title: recipe.title,
     image: recipe.image,
     readyInMinutes: recipe.readyInMinutes,
     popularity: 0,
-    vegan: recipe.vegan == 1,
-    vegetarian: recipe.vegetarian == 1,
-    glutenFree: recipe.glutenFree == 1,
+    vegan: recipe.vegan === "1",
+    vegetarian: recipe.vegetarian === "1",
+    glutenFree: recipe.glutenFree === "1",
   };
 }
 
@@ -362,13 +374,12 @@ async function getAnalyzedInstructions(recipe_id) {
           image: image,
         });
       }
-      let { number, step, length, temperature } = element.steps[i];
+      let { number, step, length } = element.steps[i];
       custom_steps.push({
         number: number,
         step: step,
         ingredients: custom_ingredients,
         equipment: custom_equipments,
-        temperature: temperature,
         length: length,
       });
     }
@@ -393,3 +404,4 @@ exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
 exports.getAnalyzedInstructions = getAnalyzedInstructions;
+exports.getPersonalFull = getPersonalFull;

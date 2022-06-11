@@ -85,7 +85,7 @@ router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
  * Returns a full details of a recipe by its id
  */
 router.get("/:recipeId", async (req, res, next) => {
-  // const user_id = req.session.user_id;
+  const user_id = req.session.user_id;
   try {
     const recipe = await recipes_utils.viewRecipe(user_id, req.params.recipeId);
     res.send(recipe);

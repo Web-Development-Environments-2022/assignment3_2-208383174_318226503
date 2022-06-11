@@ -65,17 +65,19 @@ async function addNewRecipeToDb(
   glutenFree,
   servingSize,
   ingredientsAndQuantities,
-  instructions
+  instructions,
+  analyzedInstructions
 ) {
   console.log("adding new recipe to db");
   popularity = 0;
   const newRecipe = await DButils.execQuery(
-    `INSERT INTO usersPersonalRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}','${vegan}','${vegetarian}','${glutenFree}', '${servingSize}')`
+    `INSERT INTO usersPersonalRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}',${vegan},'${vegetarian}','${glutenFree}', '${servingSize}')`
   );
   console.log("finished adding to userPersonalRecipes");
-  let id = newRecipe.insertId;
-  await addIngredientsAndQuantities(id, ingredientsAndQuantities);
-  await addInstructions(id, instructions);
+  let recipe_id = newRecipe.insertId;
+  await addIngredientsAndQuantities(recipe_id, ingredientsAndQuantities);
+  await addInstructions(recipe_id, instructions);
+  await addAnalyzedInstructions(recipe_id, analyzedInstructions);
 }
 
 async function addInstructions(recipe_id, instructions) {
@@ -101,11 +103,90 @@ async function addIngredientsAndQuantities(
   console.log("finish insert to ingredientsAndQuantities");
 }
 
-async function getPersonalRecipe(recipe_id) {
+async function addAnalyzedInstructions(recipe_id, analyzedInstructions) {
+  let name = analyzedInstructions[0].name;
+  await DButils.execQuery(
+    `insert into analyzedinstructions values ('${name}','${recipe_id}')`
+  );
+  await addAnalyzedSteps(recipe_id, name, analyzedInstructions[0]);
+}
+
+async function addAnalyzedSteps(recipe_id, element_name, analyzedInstructions) {
+  let steps = analyzedInstructions.steps;
+  for (let specific_step of steps) {
+    let { number, step, ingredients, equipment, length } = specific_step;
+    let length_num = null;
+    let length_unit = null;
+    if (length != undefined) {
+      length_num = length.number;
+      length_unit = length.unit;
+      await DButils.execQuery(
+        `insert into steps_analyzed values ('${number}','${step}','${recipe_id}','${element_name}','${length_num}','${length_unit}' )`
+      );
+    } else {
+      await DButils.execQuery(
+        `insert into steps_analyzed values ('${number}','${step}','${recipe_id}','${element_name}', NULL, NULL)`
+      );
+    }
+
+    await addAnalyzedIngredientsAndEquipment(
+      number,
+      recipe_id,
+      ingredients,
+      equipment
+    );
+  }
+}
+
+async function addAnalyzedIngredientsAndEquipment(
+  number,
+  recipe_id,
+  ingredients,
+  equipments
+) {
+  for (let ingredient of ingredients) {
+    let { name, image } = ingredient;
+    await DButils.execQuery(
+      `insert into ingredients_analyzed values ('${name}','${image}','${recipe_id}','${number}')`
+    );
+  }
+  for (let equipment of equipments) {
+    let { name, image, temperature } = equipment;
+    if (temperature != undefined) {
+      let temperature_number = temperature.number;
+      let temperature_unit = temperature.unit;
+      await DButils.execQuery(
+        `insert into equipment_analyzed values ('${name}','${image}','${recipe_id}','${number}','${temperature_number}','${temperature_unit}')`
+      );
+    } else {
+      await DButils.execQuery(
+        `insert into equipment_analyzed values ('${name}','${image}','${recipe_id}','${number}',NULL,NULL)`
+      );
+    }
+  }
+}
+
+async function getPersonalRecipePreview(recipe_id) {
   const personalRecipe = await DButils.execQuery(
     `SELECT * FROM usersPersonalRecipes WHERE recipe_id = ${recipe_id}`
   );
   return personalRecipe[0];
+}
+
+async function getAdditionalInformationPersonal(recipe_id) {
+  const ingredients = await DButils.execQuery(
+    `SELECT * FROM ingredientsAndQuantities WHERE recipe_id_ingredients = ${recipe_id}`
+  );
+  console.log("222 " + ingredients);
+  console.log("333 " + ingredients[0]);
+
+  const instructions = await DButils.execQuery(
+    `SELECT * FROM instructions WHERE recipe_id_instructions = ${recipe_id}`
+  );
+  return {
+    ingredients,
+    instructions,
+  };
 }
 
 async function getIngredients(recipe_id) {
@@ -120,6 +201,12 @@ async function getInstructions(recipe_id) {
   );
 }
 
+async function getAnalyzedRecipe(recipe_id) {
+  return await DButils.execQuery(
+    `SELECT * FROM instructions WHERE recipe_id_instructions = ${recipe_id}`
+  );
+}
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
@@ -127,7 +214,8 @@ exports.isRecipeViewed = isRecipeViewed;
 exports.viewRecipe = viewRecipe;
 exports.getNewestViewedRecipes = getNewestViewedRecipes;
 exports.addNewRecipeToDb = addNewRecipeToDb;
-exports.getPersonalRecipe = getPersonalRecipe;
+exports.getPersonalRecipePreview = getPersonalRecipePreview;
 exports.getIngredients = getIngredients;
 exports.getInstructions = getInstructions;
 exports.getPersonalRecipes = getPersonalRecipes;
+exports.getAdditionalInformationPersonal = getAdditionalInformationPersonal;
