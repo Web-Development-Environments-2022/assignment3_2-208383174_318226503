@@ -41,7 +41,7 @@ async function getRecipePreview(user_id, recipe_id) {
     );
     is_viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
   }
-  return await createPreviewObject(recipe_info.data, is_favorite, is_viewed);
+  return await createPreviewObject(recipe_info.data, is_favorite, is_viewed, false);
 }
 
 /**
@@ -58,14 +58,14 @@ async function getRecipePreviewPersonal(user_id, recipe_id) {
     );
     is_viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
   }
-  return await createPreviewObject(recipe_info, is_favorite, is_viewed);
+  return await createPreviewObject(recipe_info, is_favorite, is_viewed, true);
 }
 
 /**
  * Creating preview object
  * This function is used for personal and not personal recipes
  */
-async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
+async function createPreviewObject(recipe_info, is_favorite, is_viewed, is_personal) {
   let {
     id,
     title,
@@ -88,6 +88,7 @@ async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
     glutenFree: glutenFree,
     isFavorite: is_favorite,
     isViewed: is_viewed,
+    isPersonal: is_personal
   };
 }
 
@@ -383,6 +384,16 @@ async function getAnalyzedInstructions(recipe_id) {
   };
 }
 
+/* bonus*/
+async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
+  await dbFunctionality_utils.addRecipeToUpcommingMeal(user_id,recipe_id, personal);
+  console.log(`recipe number ${recipe_id} was added by user ${user_id} to upcomming meal`);
+}
+
+async function getUpcommingMealRecipes(user_id){
+  await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -393,3 +404,5 @@ exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
 exports.getAnalyzedInstructions = getAnalyzedInstructions;
+exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
+exports.getUpcommingMealRecipes = getUpcommingMealRecipes;

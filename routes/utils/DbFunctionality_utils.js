@@ -120,6 +120,48 @@ async function getInstructions(recipe_id) {
   );
 }
 
+async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
+  let personal_val ;
+  if (personal){
+    personal_val =1;
+  }
+  else{
+    personal_val =0;
+  }
+  let index = await getOrderOfLastRecipe(user_id);
+  await DButils.execQuery(
+    `insert into mealplanningrecipes values ('${user_id}','${recipe_id}','${personal_val}', '${index}')`
+  );
+}
+
+async function getOrderOfLastRecipe(user_id){
+  // let max_order = await DButils.execQuery(
+  //   `SELECT MAX(order_num) FROM mealplanningrecipes
+  //   WHERE user_id=${user_id};`
+  // );
+  // // if(typeof max_order ==undefined){
+  // //   console.log("is undefined !!!!!!")
+  // //   max_order =0;
+  // // }
+
+  // console.log(`max order is ${max_order[0]["order_num"]}`)
+  // return max_order+1;
+  let max_order ;
+  await DButils.execQuery(`SELECT MAX(order_num) FROM mealplanningrecipes WHERE user_id=${user_id}`)
+  .then(res => {
+    console.log(res[0]['MAX(order_num)']);
+    // console.log(Number(res[0]['MAX(order_num)'])+1);
+    // return Number(res[0]['MAX(order_num)'])+1;
+    max_order = Number(res[0]['MAX(order_num)'])+1;
+  });
+  console.log(`max_order is: ${max_order}`);
+  return max_order;
+}
+
+
+
+
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
@@ -131,3 +173,4 @@ exports.getPersonalRecipe = getPersonalRecipe;
 exports.getIngredients = getIngredients;
 exports.getInstructions = getInstructions;
 exports.getPersonalRecipes = getPersonalRecipes;
+exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
