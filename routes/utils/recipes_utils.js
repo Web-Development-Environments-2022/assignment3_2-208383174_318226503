@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { use } = require("../user");
 const dbFunctionality_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
@@ -429,6 +430,12 @@ async function getNumOfUpcommingMealRecipes(user_id){
   return num;
 }
 
+async function removeRecipeFromMeal(user_id, recipeId){
+  let num = await getNumOfUpcommingMealRecipes(user_id);
+  await changeRecipeOrder(user_id,recipeId,num);
+  await dbFunctionality_utils.removeRecipeFromMeal(user_id,recipeId);
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -443,3 +450,4 @@ exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
 exports.getUpcommingMealRecipes = getUpcommingMealRecipes;
 exports.changeRecipeOrder = changeRecipeOrder;
 exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
+exports.removeRecipeFromMeal =removeRecipeFromMeal;

@@ -180,7 +180,11 @@ async function changeRecipeOrderInMeal(user_id,recipeId, neworder){
   );
 }
 
-
+async function removeRecipeFromMeal(user_id,recipe_id){
+  await DButils.execQuery(
+    `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id} AND recipe_id=${recipe_id};`
+  );
+}
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
@@ -197,3 +201,4 @@ exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
 exports.getRecipesUpcommingMeal = getRecipesUpcommingMeal;
 exports.changeRecipeOrderInMeal = changeRecipeOrderInMeal;
 exports.getOrderOfLastRecipe = getOrderOfLastRecipe;
+exports.removeRecipeFromMeal =removeRecipeFromMeal;
