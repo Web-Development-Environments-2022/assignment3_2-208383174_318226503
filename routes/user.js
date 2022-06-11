@@ -164,6 +164,15 @@ router.put("/removeRecipeFromMeal/:recipeId", async (req, res, next) => {
   }
 });
 
-//TODO: delete all list
+//delete all list
+router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    await recipes_utils.removeAllRecipeFromMeal(user_id);
+    res.status(200).send(`recipes were deleted from meal`);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;

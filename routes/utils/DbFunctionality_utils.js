@@ -186,6 +186,12 @@ async function removeRecipeFromMeal(user_id,recipe_id){
   );
 }
 
+async function removeAllRecipesFromMeal(user_id){
+  await DButils.execQuery(
+    `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id};`
+  );
+}
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
@@ -202,3 +208,4 @@ exports.getRecipesUpcommingMeal = getRecipesUpcommingMeal;
 exports.changeRecipeOrderInMeal = changeRecipeOrderInMeal;
 exports.getOrderOfLastRecipe = getOrderOfLastRecipe;
 exports.removeRecipeFromMeal =removeRecipeFromMeal;
+exports.removeAllRecipesFromMeal =removeAllRecipesFromMeal;

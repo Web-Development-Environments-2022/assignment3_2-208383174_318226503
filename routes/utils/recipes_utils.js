@@ -436,6 +436,10 @@ async function removeRecipeFromMeal(user_id, recipeId){
   await dbFunctionality_utils.removeRecipeFromMeal(user_id,recipeId);
 }
 
+async function removeAllRecipeFromMeal(user_id){
+  await dbFunctionality_utils.removeAllRecipesFromMeal(user_id);
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -451,3 +455,4 @@ exports.getUpcommingMealRecipes = getUpcommingMealRecipes;
 exports.changeRecipeOrder = changeRecipeOrder;
 exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
 exports.removeRecipeFromMeal =removeRecipeFromMeal;
+exports.removeAllRecipeFromMeal =removeAllRecipeFromMeal;
