@@ -93,7 +93,7 @@ router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
   }
 });
 
-//TODO: get UpcommingMeal recipes
+//get UpcommingMeal recipes
 router.get("/getUpcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;

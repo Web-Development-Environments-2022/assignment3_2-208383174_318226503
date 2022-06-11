@@ -391,7 +391,22 @@ async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
 }
 
 async function getUpcommingMealRecipes(user_id){
-  await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
+  let recipes = await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
+  console.log(recipes);
+  let recipes_preview = [];
+  for (let recipe of recipes) {
+    if (recipe.is_personal==1){
+      recipes_preview.push(
+        await getRecipePreviewPersonal(user_id, recipe.recipe_id)
+      );
+    }
+    else{
+      recipes_preview.push(
+        await getRecipePreview(user_id,recipe.recipe_id)
+      );
+    }
+  }
+  return recipes_preview;
 }
 
 exports.getRecipePreview = getRecipePreview;
