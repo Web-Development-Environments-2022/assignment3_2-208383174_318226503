@@ -152,7 +152,32 @@ async function getRecipesUpcommingMeal(user_id){
   );
 }
 
+async function changeRecipeOrderInMeal(user_id,recipeId, neworder){
+  //check value of prev order
+  let old_order ;
+  await DButils.execQuery(`SELECT order_num FROM mealplanningrecipes WHERE user_id=${user_id} AND recipe_id=${recipeId}`)
+  .then(res => {
+    console.log(res[0]['order_num']);
+    old_order = Number(res[0]['order_num']);
+  });
+  console.log(`old_order is: ${old_order}`);
 
+  if(old_order<neworder){
+    await DButils.execQuery(`UPDATE mealplanningrecipes 
+    SET order_num = order_num-1
+    WHERE user_id = ${user_id} AND order_num>${old_order} AND order_num<=${neworder};`);
+  }
+  else if(old_order>neworder){
+    await DButils.execQuery(`UPDATE mealplanningrecipes 
+    SET order_num = order_num+1
+    WHERE user_id = ${user_id} AND order_num>=${neworder} AND order_num<${old_order};`);
+  }
+  await DButils.execQuery(
+    `UPDATE mealplanningrecipes 
+    SET order_num = ${neworder}
+    WHERE user_id = ${user_id} AND recipe_id=${recipeId};`
+  );
+}
 
 
 
@@ -169,3 +194,4 @@ exports.getInstructions = getInstructions;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
 exports.getRecipesUpcommingMeal = getRecipesUpcommingMeal;
+exports.changeRecipeOrderInMeal = changeRecipeOrderInMeal;

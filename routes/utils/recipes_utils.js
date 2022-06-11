@@ -409,6 +409,13 @@ async function getUpcommingMealRecipes(user_id){
   return recipes_preview;
 }
 
+
+async function changeRecipeOrder(user_id, recipeId, neworder){
+  await dbFunctionality_utils.changeRecipeOrderInMeal(user_id,recipeId, neworder);
+  console.log(`the order of recipe number ${recipeId} was changed to ${neworder}`);
+}
+
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -421,3 +428,4 @@ exports.getNewestViewed = getNewestViewed;
 exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
 exports.getUpcommingMealRecipes = getUpcommingMealRecipes;
+exports.changeRecipeOrder = changeRecipeOrder;

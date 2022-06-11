@@ -104,8 +104,16 @@ router.get("/getUpcommingMeal", async (req, res, next) => {
   }
 });
 
-// TODO: put change recipe order in meal
-
+//  put change recipe order in meal
+router.put("/changeRecipeOrderInMeal/:recipeId", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    await recipes_utils.changeRecipeOrder(user_id, req.params.recipeId, req.query.neworder);
+    res.status(200).send(`the order of recipe ${req.params.recipeId} was changed to ${req.query.neworder}`);
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 /**
