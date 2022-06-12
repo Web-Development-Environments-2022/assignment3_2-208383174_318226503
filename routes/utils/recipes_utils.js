@@ -284,13 +284,6 @@ async function getPersonalFull(user_id, recipe_id) {
   return { preview, ingredients, instructions };
 }
 
-async function getanalyzedInstructionsRecipeAddedByUser(recipe_id) {
-  let recipe = await dbFunctionality_utils.getAnalyzedRecipe(recipe_id);
-  let recipe_info = {};
-  let ingredients = await dbFunctionality_utils.getIngredients(recipe_id);
-  let instructions = await dbFunctionality_utils.getInstructions(recipe_id);
-}
-
 /**
  * Getting the personal recipe preview information
  */
@@ -394,6 +387,13 @@ async function getAnalyzedInstructions(recipe_id) {
   };
 }
 
+async function getPersonalAnalyzedInstructions(user_id, recipe_id) {
+  const fullPersonal = await getPersonalFull(user_id, recipe_id);
+  const AnalyzedInstructions =
+    await dbFunctionality_utils.getAnalyzedInstructionsPersonal(recipe_id);
+  return { fullPersonal, AnalyzedInstructions };
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -406,3 +406,4 @@ exports.getNewestViewed = getNewestViewed;
 exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.getPersonalFull = getPersonalFull;
 exports.getPersonalRecipePreview = getPersonalRecipePreview;
+exports.getPersonalAnalyzedInstructions = getPersonalAnalyzedInstructions;
