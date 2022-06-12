@@ -2,34 +2,28 @@ const axios = require("axios");
 const dbFunctionality_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
-/**
- * Get recipes list from spooncular response and extract the relevant recipe data for preview
- */
+//  Get recipes list from spoonacular response and extract the relevant recipe data for preview
 async function getRecipeInformation(recipe_id) {
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
       includeNutrition: false,
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.spoonacular_apiKey,
     },
   });
 }
 
-/**
- * Accessing spooncular for a random recipe
- */
-async function getRandomRecipiesFromSpooncular() {
+// Accessing spoonacular for a random recipe
+async function getRandomRecipiesFromSpoonacular() {
   const response = await axios.get(`${api_domain}/random`, {
     params: {
       number: 10,
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.spoonacular_apiKey,
     },
   });
   return response;
 }
 
-/**
- * Getting the recipe preview information
- */
+// Getting the recipe preview information
 async function getRecipePreview(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
   let is_favorite = false;
@@ -44,9 +38,7 @@ async function getRecipePreview(user_id, recipe_id) {
   return await createPreviewObject(recipe_info.data, is_favorite, is_viewed);
 }
 
-/**
- * Getting a personal recipe the recipe preview information
- */
+// Getting a personal recipe preview information
 async function getRecipePreviewPersonal(user_id, recipe_id) {
   console.log(`user id ` + user_id + " recpe id " + recipe_id);
   let recipe_info = await getPersonalRecipePreview(recipe_id);
@@ -61,10 +53,7 @@ async function getRecipePreviewPersonal(user_id, recipe_id) {
   return await createPreviewObject(recipe_info, is_favorite, is_viewed);
 }
 
-/**
- * Creating preview object
- * This function is used for personal and not personal recipes
- */
+// Creating preview object
 async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
   let {
     id,
@@ -91,10 +80,7 @@ async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
   };
 }
 
-/**
- * Dummy function for searching recipies
- * For now- getting random
- */
+// searching recipe
 async function searchRecipes(
   user_id,
   search_term,
@@ -107,7 +93,7 @@ async function searchRecipes(
   if (num_of_recipes === undefined) {
     num_of_recipes = 5;
   }
-  let search_pool = await getSearchSpooncular(
+  let search_pool = await getSearchSpoonacular(
     search_term,
     cuisine,
     diet,
@@ -124,7 +110,8 @@ async function searchRecipes(
   return await Promise.all(selected_recipes);
 }
 
-async function getSearchSpooncular(
+// searching spoonacular
+async function getSearchSpoonacular(
   search_term,
   cuisine,
   diet,
@@ -151,12 +138,13 @@ async function getSearchSpooncular(
   const response = await axios.get(request_url, {
     params: {
       number: num_of_recipes,
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.spoonacular_apiKey,
     },
   });
   return response;
 }
 
+// get the n newest viewed recipes from a user
 async function getNewestViewed(user_id, num_of_recipes) {
   recipes_id = await dbFunctionality_utils.getNewestViewedRecipes(
     user_id,
@@ -170,11 +158,9 @@ async function getNewestViewed(user_id, num_of_recipes) {
   return info_res;
 }
 
-/**
- * Retrieving the wanted number of random recipes
- */
+// Retrieving the wanted number of random recipes
 async function getRandomRecipies(user_id, num_of_recipes) {
-  let random_pool = await getRandomRecipiesFromSpooncular();
+  let random_pool = await getRandomRecipiesFromSpoonacular();
   // TODO- additional line for filltering from lab8
   let recipes = random_pool.data.recipes;
   let selected_recipes = [];
@@ -185,12 +171,8 @@ async function getRandomRecipies(user_id, num_of_recipes) {
   return await Promise.all(selected_recipes);
 }
 
-/**
- * Getting the full wanted information about a recipe
- * Does not contain the information from the preview
- */
+// Getting additional information about a recipe
 async function getAdditionalInformation(recipe_id) {
-  // TODO- make sure about the ingredient name & instructions
   let recipe_info = await getRecipeInformation(recipe_id);
   let extendedIngredients = recipe_info.data.extendedIngredients;
   let analyzedInstructions = recipe_info.data.analyzedInstructions[0].steps;
@@ -215,10 +197,7 @@ async function getAdditionalInformation(recipe_id) {
   };
 }
 
-/**
- * Getting the full recipe details by id
- * The details contains the preview plus the extra information
- */
+// Getting the full recipe details by id
 async function getRecipeDetails(user_id, recipe_id) {
   console.log("getting recipie info");
   let { ingredientsAndQuantities, instructions, servings } =
@@ -233,9 +212,7 @@ async function getRecipeDetails(user_id, recipe_id) {
   };
 }
 
-/**
- * Mark recipe as viewed and return it's details
- */
+// Mark recipe as viewed and return it's details
 async function viewRecipe(user_id, recipe_id) {
   if (user_id != undefined) {
     await dbFunctionality_utils.viewRecipe(user_id, recipe_id);
@@ -243,9 +220,7 @@ async function viewRecipe(user_id, recipe_id) {
   return await getRecipeDetails(user_id, recipe_id);
 }
 
-/**
- * Adding new personal recipe by a user
- */
+// Adding new personal recipe by a user
 async function addNewRecipeByUser(user_id, recipe_info) {
   let {
     title,
@@ -275,6 +250,7 @@ async function addNewRecipeByUser(user_id, recipe_info) {
   );
 }
 
+// getting the full information about a recipe
 async function getPersonalFull(user_id, recipe_id) {
   const preview = await getRecipePreviewPersonal(user_id, recipe_id);
   const additional =
@@ -284,9 +260,7 @@ async function getPersonalFull(user_id, recipe_id) {
   return { preview, ingredients, instructions };
 }
 
-/**
- * Getting the personal recipe preview information
- */
+// Getting the personal recipe preview information
 async function getPersonalRecipePreview(recipe_id) {
   let recipe = await dbFunctionality_utils.getPersonalRecipePreview(recipe_id);
   // TODO- popularity, watched, favorite
@@ -302,9 +276,7 @@ async function getPersonalRecipePreview(recipe_id) {
   };
 }
 
-/**
- * Getting user's personal recipes
- */
+// Getting all of the user's favorite recipes
 async function getFavoriteRecipes(user_id) {
   let recipes_ids = await dbFunctionality_utils.getFavoriteRecipes(user_id);
   let recipes_preview = [];
@@ -314,6 +286,7 @@ async function getFavoriteRecipes(user_id) {
   return recipes_preview;
 }
 
+// Getting all of the user's personal recipes
 async function getPersonalRecipes(user_id) {
   let recipes_ids = await dbFunctionality_utils.getPersonalRecipes(user_id);
   let recipes_preview = [];
@@ -325,17 +298,20 @@ async function getPersonalRecipes(user_id) {
   return recipes_preview;
 }
 
+/* bonus */
+
+// getting a recipe's analyzed instruction from spoonacular
 async function getAnalyzedInstructionSpoonacular(recipe_id) {
   let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
   const response = await axios.get(request_url, {
     params: {
-      apiKey: process.env.spooncular_apiKey,
+      apiKey: process.env.spoonacular_apiKey,
     },
   });
   return response;
 }
 
-/* bonus */
+// getting a recipe's analyzed instruction
 async function getAnalyzedInstructions(recipe_id) {
   let response = await getAnalyzedInstructionSpoonacular(recipe_id);
   let custom_elements = [];
@@ -387,6 +363,7 @@ async function getAnalyzedInstructions(recipe_id) {
   };
 }
 
+// getting the analyzed instructions for a personal recipe
 async function getPersonalAnalyzedInstructions(user_id, recipe_id) {
   const fullPersonal = await getPersonalFull(user_id, recipe_id);
   const AnalyzedInstructions =

@@ -38,7 +38,10 @@ router.post("/preview", async (req, res, next) => {
   }
 });
 
-/** TODO- wip - DOES NOT WORK */
+/**
+ * searching a recipe by a search term
+ * supports filtering, inserting number of recipes and sort
+ */
 router.get("/search", async (req, res, next) => {
   const user_id = req.session.user_id;
   const search_term = req.query.term;
@@ -67,7 +70,9 @@ router.get("/search", async (req, res, next) => {
   }
 });
 
-/* bonus*/
+/**
+ * bonus- getting a recipe's alyzed instructions
+ */
 router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {

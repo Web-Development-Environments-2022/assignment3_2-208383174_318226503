@@ -68,7 +68,6 @@ router.post("/add", async (req, res, next) => {
 /**
  * Getting all the personal recipes by a user
  */
-// TODO- return full recipe
 router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -79,6 +78,9 @@ router.get("/myRecipes", async (req, res, next) => {
   }
 });
 
+/*
+  getting a preview for a personal recipe
+*/
 router.get("/personalPreview", async (req, res, next) => {
   try {
     const recipe_id = req.query.recipe_id;
@@ -91,6 +93,9 @@ router.get("/personalPreview", async (req, res, next) => {
   }
 });
 
+/* 
+  getting the full details of a personal recipe
+*/
 router.get("/personalExtended", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
