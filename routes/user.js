@@ -31,8 +31,12 @@ router.post("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
-    await dbFunctionality_utils.markAsFavorite(user_id, recipe_id);
-    res.status(200).send("The Recipe successfully saved as favorite");
+    let ans = await dbFunctionality_utils.markAsFavorite(user_id, recipe_id);
+    if (ans == 1) {
+      res.status(200).send("The Recipe successfully saved as favorite");
+    } else {
+      throw { status: 409, message: "recipe already favorite" };
+    }
   } catch (error) {
     next(error);
   }
@@ -84,9 +88,23 @@ router.get("/myRecipes", async (req, res, next) => {
 router.get("/personalPreview", async (req, res, next) => {
   try {
     const recipe_id = req.query.recipe_id;
-    const personal_recipes = await recipes_utils.getPersonalRecipePreview(
+    const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
       recipe_id
     );
+    res.status(200).send(personal_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/*
+  getting a preview for a personal recipe
+*/
+router.get("/personalFull", async (req, res, next) => {
+  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  try {
+    const recipe_id = req.query.recipe_id;
+    const personal_recipes = await recipes_utils.getPersonalFull(recipe_id);
     res.status(200).send(personal_recipes);
   } catch (error) {
     next(error);
@@ -96,18 +114,19 @@ router.get("/personalPreview", async (req, res, next) => {
 /* 
   getting the full details of a personal recipe
 */
-router.get("/personalExtended", async (req, res, next) => {
+router.get("/personalAnalyzed", async (req, res, next) => {
   try {
-    const user_id = req.session.user_id;
     const recipe_id = req.query.recipe_id;
+    console.log("77777777777777 " + recipe_id);
     const personal_recipes =
-      await recipes_utils.getPersonalAnalyzedInstructions(user_id, recipe_id);
+      await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
     res.status(200).send(personal_recipes);
   } catch (error) {
     next(error);
   }
 });
 
+// TODO- FIX
 /**
  * Getting the 3 recipes that the user last viewed
  * For the Main Page

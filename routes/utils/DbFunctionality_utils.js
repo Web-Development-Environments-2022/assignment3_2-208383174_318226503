@@ -2,9 +2,13 @@ const DButils = require("./DButils");
 
 // mark the recipe as favorite by a logged in user
 async function markAsFavorite(user_id, recipe_id) {
-  await DButils.execQuery(
-    `insert into FavoriteRecipes values ('${user_id}',${recipe_id})`
-  );
+  if (!isRecipeFavorite(user_id, recipe_id)) {
+    await DButils.execQuery(
+      `insert into FavoriteRecipes values ('${user_id}',${recipe_id})`
+    );
+    return 1;
+  }
+  return 0;
 }
 
 // get all favorite recipes by a user
@@ -33,29 +37,35 @@ async function isRecipeFavorite(user_id, recipe_id) {
 
 // return if a recipe has been viewed by a user
 async function isRecipeViewed(user_id, recipe_id) {
+  console.log(
+    `cheking recipe viewed user id: ${user_id} recipe id ${recipe_id}`
+  );
   const viewedRecipe = await DButils.execQuery(
     `select * from usersRecipesViews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
   );
-  return !(viewedRecipe.length === 0);
+  console.log("result " + viewedRecipe);
+  console.log("result " + viewedRecipe.length);
+  return viewedRecipe.length != 0;
 }
 
-// mark recipe as viewed
+// mark recipe as viewed IN DB
 async function viewRecipe(user_id, recipe_id) {
   let isViewed = await isRecipeViewed(user_id, recipe_id);
   if (isViewed) {
+    console.log("recipe viewed");
     await DButils.execQuery(
       `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
     );
   }
   await DButils.execQuery(
-    `insert into usersrecipesviews values ('${user_id}',${recipe_id})`
+    `insert into usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
   );
 }
 
 // get the n newest viewed recipes by a user
 async function getNewestViewedRecipes(user_id, num_of_recipes) {
   const recipes_id = await DButils.execQuery(
-    `SELECT recipe_id FROM usersrecipesviews WHERE user_id = ${user_id} ORDER BY recipe_id DESC
+    `SELECT recipe_id FROM usersrecipesviews WHERE user_id = ${user_id} ORDER BY id DESC
     LIMIT ${num_of_recipes};
     `
   );

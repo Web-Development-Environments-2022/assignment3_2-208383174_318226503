@@ -24,9 +24,9 @@ router.get("/random", async (req, res, next) => {
  * Getting the preview for a recipe
  * Does not mark the recipe as "viewed"
  */
-router.post("/preview", async (req, res, next) => {
+router.get("/preview", async (req, res, next) => {
   const user_id = req.session.user_id;
-  const recipe_id = req.body.recipe_id;
+  const recipe_id = req.query.recipe_id;
   try {
     let recipe_preview = await recipes_utils.getRecipePreview(
       user_id,
@@ -63,7 +63,7 @@ router.get("/search", async (req, res, next) => {
     if (recipe.length > 0) {
       res.send(recipe);
     } else {
-      res.status(204).send("no recipe was found");
+      res.status(204).send({ message: "no recipe was found", success: false });
     }
   } catch (error) {
     next(error);

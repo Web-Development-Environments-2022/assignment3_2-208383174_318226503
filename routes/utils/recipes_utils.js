@@ -39,17 +39,11 @@ async function getRecipePreview(user_id, recipe_id) {
 }
 
 // Getting a personal recipe preview information
-async function getRecipePreviewPersonal(user_id, recipe_id) {
-  console.log(`user id ` + user_id + " recpe id " + recipe_id);
-  let recipe_info = await getPersonalRecipePreview(recipe_id);
-  let { is_favorite, is_viewed } = false;
-  if (user_id != undefined) {
-    is_favorite = await dbFunctionality_utils.isRecipeFavorite(
-      user_id,
-      recipe_id
-    );
-    is_viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
-  }
+async function getRecipePreviewPersonal(recipe_id) {
+  console.log("111111111111111");
+  let recipe_info = await getPersonalRecipePreviewFromDB(recipe_id);
+  let is_favorite = false;
+  let is_viewed = true;
   return await createPreviewObject(recipe_info, is_favorite, is_viewed);
 }
 
@@ -105,7 +99,7 @@ async function searchRecipes(
   let selected_recipes = [];
   for (let i = 0; i < recipes.length; i++) {
     let recipe_id = recipes[i].id;
-    selected_recipes.push(getRecipePreview(user_id, recipe_id));
+    selected_recipes.push(getRecipeDetails(user_id, recipe_id));
   }
   return await Promise.all(selected_recipes);
 }
@@ -130,7 +124,7 @@ async function getSearchSpoonacular(
     request_url = request_url.concat(`&intolerance=${intolerance}`);
   }
   if (sort === "time") {
-    request_url = request_url.concat(`&sort=time&sortDirection=asc`); // TODO- change lowest to higest
+    request_url = request_url.concat(`&sort=time&sortDirection=asc`);
   }
   if (sort === "popularity") {
     request_url = request_url.concat(`&sort=popularity`);
@@ -150,18 +144,20 @@ async function getNewestViewed(user_id, num_of_recipes) {
     user_id,
     num_of_recipes
   );
+  let num_of_recipes_currenly = Math.min(num_of_recipes, recipes_id.length);
   let recipes_details = [];
-  for (let i = 0; i < num_of_recipes; i++) {
-    recipes_details.push(getRecipePreview(user_id, recipes_id[i].recipe_id));
+  for (let i = 0; i < num_of_recipes_currenly; i++) {
+    recipes_details.push(
+      await getRecipePreview(user_id, recipes_id[i].recipe_id)
+    );
   }
-  let info_res = await Promise.all(recipes_details);
-  return info_res;
+  // let info_res = await Promise.all(recipes_details);
+  return recipes_details;
 }
 
 // Retrieving the wanted number of random recipes
 async function getRandomRecipies(user_id, num_of_recipes) {
   let random_pool = await getRandomRecipiesFromSpoonacular();
-  // TODO- additional line for filltering from lab8
   let recipes = random_pool.data.recipes;
   let selected_recipes = [];
   for (let i = 0; i < num_of_recipes; i++) {
@@ -251,8 +247,8 @@ async function addNewRecipeByUser(user_id, recipe_info) {
 }
 
 // getting the full information about a recipe
-async function getPersonalFull(user_id, recipe_id) {
-  const preview = await getRecipePreviewPersonal(user_id, recipe_id);
+async function getPersonalFull(recipe_id) {
+  const preview = await getRecipePreviewPersonal(recipe_id);
   const additional =
     await dbFunctionality_utils.getAdditionalInformationPersonal(recipe_id);
   const ingredients = additional.ingredients;
@@ -261,9 +257,9 @@ async function getPersonalFull(user_id, recipe_id) {
 }
 
 // Getting the personal recipe preview information
-async function getPersonalRecipePreview(recipe_id) {
+async function getPersonalRecipePreviewFromDB(recipe_id) {
+  console.log("2222222222222");
   let recipe = await dbFunctionality_utils.getPersonalRecipePreview(recipe_id);
-  // TODO- popularity, watched, favorite
   return {
     id: recipe.recipe_id,
     title: recipe.title,
@@ -291,9 +287,7 @@ async function getPersonalRecipes(user_id) {
   let recipes_ids = await dbFunctionality_utils.getPersonalRecipes(user_id);
   let recipes_preview = [];
   for (let recipe of recipes_ids) {
-    recipes_preview.push(
-      await getRecipePreviewPersonal(user_id, recipe.recipe_id)
-    );
+    recipes_preview.push(await getRecipePreviewPersonal(recipe.recipe_id));
   }
   return recipes_preview;
 }
@@ -364,8 +358,8 @@ async function getAnalyzedInstructions(recipe_id) {
 }
 
 // getting the analyzed instructions for a personal recipe
-async function getPersonalAnalyzedInstructions(user_id, recipe_id) {
-  const fullPersonal = await getPersonalFull(user_id, recipe_id);
+async function getPersonalAnalyzedInstructions(recipe_id) {
+  const fullPersonal = await getPersonalFull(recipe_id);
   const AnalyzedInstructions =
     await dbFunctionality_utils.getAnalyzedInstructionsPersonal(recipe_id);
   return { fullPersonal, AnalyzedInstructions };
@@ -382,5 +376,5 @@ exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
 exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.getPersonalFull = getPersonalFull;
-exports.getPersonalRecipePreview = getPersonalRecipePreview;
+exports.getRecipePreviewPersonal = getRecipePreviewPersonal;
 exports.getPersonalAnalyzedInstructions = getPersonalAnalyzedInstructions;
