@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { use } = require("../user");
 const dbFunctionality_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
@@ -35,7 +36,12 @@ async function getRecipePreview(user_id, recipe_id) {
     );
     is_viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
   }
-  return await createPreviewObject(recipe_info.data, is_favorite, is_viewed);
+  return await createPreviewObject(
+    recipe_info.data,
+    is_favorite,
+    is_viewed,
+    false
+  );
 }
 
 // Getting a personal recipe preview information
@@ -44,11 +50,19 @@ async function getRecipePreviewPersonal(recipe_id) {
   let recipe_info = await getPersonalRecipePreviewFromDB(recipe_id);
   let is_favorite = false;
   let is_viewed = true;
-  return await createPreviewObject(recipe_info, is_favorite, is_viewed);
+  return await createPreviewObject(recipe_info, is_favorite, is_viewed, true);
 }
 
-// Creating preview object
-async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
+/**
+ * Creating preview object
+ * This function is used for personal and not personal recipes
+ */
+async function createPreviewObject(
+  recipe_info,
+  is_favorite,
+  is_viewed,
+  is_personal
+) {
   let {
     id,
     title,
@@ -71,6 +85,7 @@ async function createPreviewObject(recipe_info, is_favorite, is_viewed) {
     glutenFree: glutenFree,
     isFavorite: is_favorite,
     isViewed: is_viewed,
+    isPersonal: is_personal,
   };
 }
 
@@ -365,6 +380,63 @@ async function getPersonalAnalyzedInstructions(recipe_id) {
   return { fullPersonal, AnalyzedInstructions };
 }
 
+/* bonus*/
+async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
+  await dbFunctionality_utils.addRecipeToUpcommingMeal(
+    user_id,
+    recipe_id,
+    personal
+  );
+  console.log(
+    `recipe number ${recipe_id} was added by user ${user_id} to upcomming meal`
+  );
+}
+
+async function getUpcommingMealRecipes(user_id) {
+  let recipes = await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
+  console.log(recipes);
+  let recipes_preview = [];
+  for (let recipe of recipes) {
+    if (recipe.is_personal == 1) {
+      let r = await getRecipePreviewPersonal(user_id, recipe.recipe_id);
+
+      recipes_preview.push({ order: recipe.order_num, recipe_preview: r });
+    } else {
+      let r = await getRecipePreview(user_id, recipe.recipe_id);
+      recipes_preview.push({ order: recipe.order_num, recipe_preview: r });
+    }
+  }
+  return recipes_preview;
+}
+
+async function changeRecipeOrder(user_id, recipeId, neworder) {
+  await dbFunctionality_utils.changeRecipeOrderInMeal(
+    user_id,
+    recipeId,
+    neworder
+  );
+  console.log(
+    `the order of recipe number ${recipeId} was changed to ${neworder}`
+  );
+}
+
+async function getNumOfUpcommingMealRecipes(user_id) {
+  let num = await dbFunctionality_utils.getOrderOfLastRecipe(user_id);
+  num = num - 1;
+  console.log(`num is : ${num}`);
+  return num;
+}
+
+async function removeRecipeFromMeal(user_id, recipeId) {
+  let num = await getNumOfUpcommingMealRecipes(user_id);
+  await changeRecipeOrder(user_id, recipeId, num);
+  await dbFunctionality_utils.removeRecipeFromMeal(user_id, recipeId);
+}
+
+async function removeAllRecipeFromMeal(user_id) {
+  await dbFunctionality_utils.removeAllRecipesFromMeal(user_id);
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -378,3 +450,9 @@ exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.getPersonalFull = getPersonalFull;
 exports.getRecipePreviewPersonal = getRecipePreviewPersonal;
 exports.getPersonalAnalyzedInstructions = getPersonalAnalyzedInstructions;
+exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
+exports.getUpcommingMealRecipes = getUpcommingMealRecipes;
+exports.changeRecipeOrder = changeRecipeOrder;
+exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
+exports.removeRecipeFromMeal = removeRecipeFromMeal;
+exports.removeAllRecipeFromMeal = removeAllRecipeFromMeal;

@@ -1,3 +1,4 @@
+const { use } = require("../user");
 const DButils = require("./DButils");
 
 // mark the recipe as favorite by a logged in user
@@ -332,6 +333,76 @@ async function getAnalyzedEquipmentPersonal(step_num, recipe_id) {
   }
 }
 
+async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
+  let personal_val;
+  if (personal) {
+    personal_val = 1;
+  } else {
+    personal_val = 0;
+  }
+  let index = await getOrderOfLastRecipe(user_id);
+  await DButils.execQuery(
+    `insert into mealplanningrecipes values ('${user_id}','${recipe_id}','${personal_val}', '${index}')`
+  );
+}
+
+async function getOrderOfLastRecipe(user_id) {
+  let max_order;
+  await DButils.execQuery(
+    `SELECT MAX(order_num) FROM mealplanningrecipes WHERE user_id=${user_id}`
+  ).then((res) => {
+    console.log(res[0]["MAX(order_num)"]);
+    max_order = Number(res[0]["MAX(order_num)"]) + 1;
+  });
+  console.log(`max_order is: ${max_order}`);
+  return max_order;
+}
+
+async function getRecipesUpcommingMeal(user_id) {
+  return await DButils.execQuery(
+    `SELECT recipe_id,is_personal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
+  );
+}
+
+async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
+  //check value of prev order
+  let old_order;
+  await DButils.execQuery(
+    `SELECT order_num FROM mealplanningrecipes WHERE user_id=${user_id} AND recipe_id=${recipeId}`
+  ).then((res) => {
+    console.log(res[0]["order_num"]);
+    old_order = Number(res[0]["order_num"]);
+  });
+  console.log(`old_order is: ${old_order}`);
+
+  if (old_order < neworder) {
+    await DButils.execQuery(`UPDATE mealplanningrecipes 
+    SET order_num = order_num-1
+    WHERE user_id = ${user_id} AND order_num>${old_order} AND order_num<=${neworder};`);
+  } else if (old_order > neworder) {
+    await DButils.execQuery(`UPDATE mealplanningrecipes 
+    SET order_num = order_num+1
+    WHERE user_id = ${user_id} AND order_num>=${neworder} AND order_num<${old_order};`);
+  }
+  await DButils.execQuery(
+    `UPDATE mealplanningrecipes 
+    SET order_num = ${neworder}
+    WHERE user_id = ${user_id} AND recipe_id=${recipeId};`
+  );
+}
+
+async function removeRecipeFromMeal(user_id, recipe_id) {
+  await DButils.execQuery(
+    `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id} AND recipe_id=${recipe_id};`
+  );
+}
+
+async function removeAllRecipesFromMeal(user_id) {
+  await DButils.execQuery(
+    `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id};`
+  );
+}
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
@@ -343,3 +414,9 @@ exports.getPersonalRecipePreview = getPersonalRecipePreview;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.getAdditionalInformationPersonal = getAdditionalInformationPersonal;
 exports.getAnalyzedInstructionsPersonal = getAnalyzedInstructionsPersonal;
+exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
+exports.getRecipesUpcommingMeal = getRecipesUpcommingMeal;
+exports.changeRecipeOrderInMeal = changeRecipeOrderInMeal;
+exports.getOrderOfLastRecipe = getOrderOfLastRecipe;
+exports.removeRecipeFromMeal = removeRecipeFromMeal;
+exports.removeAllRecipesFromMeal = removeAllRecipesFromMeal;
