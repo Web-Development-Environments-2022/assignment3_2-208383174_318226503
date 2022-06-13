@@ -28,17 +28,13 @@ router.get("/", (req, res) => res.send("im in user"));
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
  */
 router.post("/favorites", async (req, res, next) => {
-  try {
-    const user_id = req.session.user_id;
-    const recipe_id = req.body.recipeId;
-    let ans = await dbFunctionality_utils.markAsFavorite(user_id, recipe_id);
-    if (ans == 1) {
-      res.status(200).send("The Recipe successfully saved as favorite");
-    } else {
-      throw { status: 409, message: "recipe already favorite" };
-    }
-  } catch (error) {
-    next(error);
+  const user_id = req.session.user_id;
+  const recipe_id = req.body.recipeId;
+  let ans = await dbFunctionality_utils.markAsFavorite(user_id, recipe_id);
+  if (ans == 1) {
+    res.status(200).send("The Recipe successfully saved as favorite");
+  } else {
+    throw { status: 409, message: "recipe was already added as favorite" };
   }
 });
 
@@ -49,7 +45,11 @@ router.get("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const favorite_recipes = await recipes_utils.getFavoriteRecipes(user_id);
-    res.status(200).send(favorite_recipes);
+    if (favorite_recipes.length > 0) {
+      res.status(200).send(favorite_recipes);
+    } else {
+      res.status(204).send("you don't have favorite recipes");
+    }
   } catch (error) {
     next(error);
   }
@@ -59,7 +59,6 @@ router.get("/favorites", async (req, res, next) => {
  * Adding a new personal recipe by a user
  */
 router.post("/add", async (req, res, next) => {
-  console.log("adding new recipe");
   const user_id = req.session.user_id;
   try {
     await recipes_utils.addNewRecipeByUser(user_id, req);
@@ -76,11 +75,31 @@ router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const personal_recipes = await recipes_utils.getPersonalRecipes(user_id);
-    res.status(200).send(personal_recipes);
+    if (personal_recipes.length > 0) {
+      res.status(200).send(personal_recipes);
+    } else {
+      res.status(204).send("you don't have personal recipes");
+    }
   } catch (error) {
     next(error);
   }
 });
+
+/**
+ * Getting the 3 recipes that the user last viewed
+ * For the Main Page
+ */
+router.get("/lastThreeViewed", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  try {
+    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
+    res.send(last_viewed_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/* personal recipes */
 
 /*
   getting a preview for a personal recipe
@@ -101,7 +120,6 @@ router.get("/personalPreview", async (req, res, next) => {
   getting a preview for a personal recipe
 */
 router.get("/personalFull", async (req, res, next) => {
-  console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
   try {
     const recipe_id = req.query.recipe_id;
     const personal_recipes = await recipes_utils.getPersonalFull(recipe_id);
@@ -117,25 +135,9 @@ router.get("/personalFull", async (req, res, next) => {
 router.get("/personalAnalyzed", async (req, res, next) => {
   try {
     const recipe_id = req.query.recipe_id;
-    console.log("77777777777777 " + recipe_id);
     const personal_recipes =
       await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
     res.status(200).send(personal_recipes);
-  } catch (error) {
-    next(error);
-  }
-});
-
-// TODO- FIX
-/**
- * Getting the 3 recipes that the user last viewed
- * For the Main Page
- */
-router.get("/lastThreeViewed", async (req, res, next) => {
-  const user_id = req.session.user_id;
-  try {
-    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
-    res.send(last_viewed_recipes);
   } catch (error) {
     next(error);
   }
