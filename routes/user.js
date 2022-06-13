@@ -141,7 +141,6 @@ router.get("/lastThreeViewed", async (req, res, next) => {
   }
 });
 
-
 /* bonus*/
 router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
@@ -156,12 +155,15 @@ router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
   }
 });
 
-
 /* bonus*/
 router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
-    await recipes_utils.addRecipeToUpcommingMeal(user_id, req.params.recipeId, req.query.personal);
+    await recipes_utils.addRecipeToUpcommingMeal(
+      user_id,
+      req.params.recipeId,
+      req.query.personal
+    );
     res.status(200).send("Recipe successfully added to Upcomming meal");
   } catch (error) {
     next(error);
@@ -183,7 +185,9 @@ router.get("/getUpcommingMeal", async (req, res, next) => {
 router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(user_id);
+    const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
+      user_id
+    );
     console.log(`number of total recipes: ${meal_recipes}`);
     res.status(200).send(`${meal_recipes}`);
   } catch (error) {
@@ -195,8 +199,16 @@ router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
 router.put("/changeRecipeOrderInMeal/:recipeId", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    await recipes_utils.changeRecipeOrder(user_id, req.params.recipeId, req.query.neworder);
-    res.status(200).send(`the order of recipe ${req.params.recipeId} was changed to ${req.query.neworder}`);
+    await recipes_utils.changeRecipeOrder(
+      user_id,
+      req.params.recipeId,
+      req.query.neworder
+    );
+    res
+      .status(200)
+      .send(
+        `the order of recipe ${req.params.recipeId} was changed to ${req.query.neworder}`
+      );
   } catch (error) {
     next(error);
   }

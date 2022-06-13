@@ -317,12 +317,6 @@ async function getAnalyzedInstructionSpoonacular(recipe_id) {
       apiKey: process.env.spoonacular_apiKey,
     },
   });
-  return response;
-}
-
-// getting a recipe's analyzed instruction
-async function getAnalyzedInstructions(recipe_id) {
-  let response = await getAnalyzedInstructionSpoonacular(recipe_id);
   let custom_elements = [];
 
   for (let elem in response.data) {
@@ -370,6 +364,17 @@ async function getAnalyzedInstructions(recipe_id) {
   return {
     analyzedInstructions: custom_elements,
   };
+}
+
+// getting a recipe's analyzed instruction
+async function getAnalyzedInstructions(user_id, recipe_id, is_personal) {
+  if (is_personal === "true") {
+    return await getPersonalAnalyzedInstructions(recipe_id);
+  } else {
+    let full = await viewRecipe(user_id, recipe_id);
+    let analyzed = getAnalyzedInstructionSpoonacular(recipe_id);
+    return { full, analyzed };
+  }
 }
 
 // getting the analyzed instructions for a personal recipe
