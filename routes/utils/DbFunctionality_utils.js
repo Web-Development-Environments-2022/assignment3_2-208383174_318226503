@@ -1,11 +1,18 @@
 const { use } = require("../user");
 const DButils = require("./DButils");
 
-// mark the recipe as favorite by a logged in user
-async function markAsFavorite(user_id, recipe_id) {
-  if (!isRecipeFavorite(user_id, recipe_id)) {
+// mark the recipe as favorite by a logged in user- both from api and personals
+async function markAsFavorite(user_id, recipe_id, personal) {
+  let is_personal;
+  if (personal === "false") {
+    is_personal = 0;
+  } else {
+    is_personal = 1;
+  }
+  let favorite = await isRecipeFavorite(user_id, recipe_id);
+  if (favorite == false) {
     await DButils.execQuery(
-      `insert into FavoriteRecipes values ('${user_id}',${recipe_id})`
+      `insert into FavoriteRecipes values ('${user_id}',${recipe_id},'${is_personal}')`
     );
     return 1;
   }
@@ -14,10 +21,10 @@ async function markAsFavorite(user_id, recipe_id) {
 
 // get all favorite recipes by a user
 async function getFavoriteRecipes(user_id) {
-  const recipes_id = await DButils.execQuery(
-    `select recipe_id from FavoriteRecipes where user_id='${user_id}'`
+  const recipes = await DButils.execQuery(
+    `select * from FavoriteRecipes where user_id='${user_id}'`
   );
-  return recipes_id;
+  return recipes;
 }
 
 // get all personal recipes by a user
@@ -38,14 +45,9 @@ async function isRecipeFavorite(user_id, recipe_id) {
 
 // return if a recipe has been viewed by a user
 async function isRecipeViewed(user_id, recipe_id) {
-  console.log(
-    `cheking recipe viewed user id: ${user_id} recipe id ${recipe_id}`
-  );
   const viewedRecipe = await DButils.execQuery(
     `select * from usersRecipesViews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
   );
-  console.log("result " + viewedRecipe);
-  console.log("result " + viewedRecipe.length);
   return viewedRecipe.length != 0;
 }
 

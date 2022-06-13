@@ -46,7 +46,6 @@ async function getRecipePreview(user_id, recipe_id) {
 
 // Getting a personal recipe preview information
 async function getRecipePreviewPersonal(recipe_id) {
-  console.log("111111111111111");
   let recipe_info = await getPersonalRecipePreviewFromDB(recipe_id);
   let is_favorite = false;
   let is_viewed = true;
@@ -273,7 +272,6 @@ async function getPersonalFull(recipe_id) {
 
 // Getting the personal recipe preview information
 async function getPersonalRecipePreviewFromDB(recipe_id) {
-  console.log("2222222222222");
   let recipe = await dbFunctionality_utils.getPersonalRecipePreview(recipe_id);
   return {
     id: recipe.recipe_id,
@@ -289,10 +287,14 @@ async function getPersonalRecipePreviewFromDB(recipe_id) {
 
 // Getting all of the user's favorite recipes
 async function getFavoriteRecipes(user_id) {
-  let recipes_ids = await dbFunctionality_utils.getFavoriteRecipes(user_id);
+  let recipes = await dbFunctionality_utils.getFavoriteRecipes(user_id);
   let recipes_preview = [];
-  for (let recipe of recipes_ids) {
-    recipes_preview.push(await getRecipePreview(user_id, recipe.recipe_id));
+  for (let recipe of recipes) {
+    if (recipe.is_personal === "0") {
+      recipes_preview.push(await getRecipePreview(user_id, recipe.recipe_id));
+    } else {
+      recipes_preview.push(await getRecipePreviewPersonal(recipe.recipe_id));
+    }
   }
   return recipes_preview;
 }
@@ -399,7 +401,6 @@ async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
 
 async function getUpcommingMealRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
-  console.log(recipes);
   let recipes_preview = [];
   for (let recipe of recipes) {
     if (recipe.is_personal == 1) {
