@@ -125,7 +125,7 @@ router.get("/personalPreview", async (req, res, next) => {
 });
 
 /*
-  getting a preview for a personal recipe
+  getting the full details of a personal recipe
 */
 router.get("/personalFull", async (req, res, next) => {
   try {
@@ -138,7 +138,7 @@ router.get("/personalFull", async (req, res, next) => {
 });
 
 /* 
-  getting the full details of a personal recipe
+  getting the analyzed details of a personal recipe
 */
 router.get("/personalAnalyzed", async (req, res, next) => {
   try {
@@ -147,20 +147,6 @@ router.get("/personalAnalyzed", async (req, res, next) => {
       await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
     res.status(200).send(personal_recipes);
   } catch (error) {
-    next(error);
-  }
-});
-
-/* bonus*/
-router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
-  const user_id = req.session.user_id;
-  try {
-    const recipe = await recipes_utils.getAnalyzedInstructions(
-      req.params.recipeId
-    );
-    res.send(recipe);
-  } catch (error) {
-    console.log("error");
     next(error);
   }
 });
@@ -198,8 +184,7 @@ router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
     const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
       user_id
     );
-    console.log(`number of total recipes: ${meal_recipes}`);
-    res.status(200).send(`${meal_recipes}`);
+    res.status(200).send(`total number of recipes ${meal_recipes}`);
   } catch (error) {
     next(error);
   }
@@ -240,7 +225,7 @@ router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     await recipes_utils.removeAllRecipeFromMeal(user_id);
-    res.status(200).send(`recipes were deleted from meal`);
+    res.status(200).send(`all recipes were deleted from meal`);
   } catch (error) {
     next(error);
   }
