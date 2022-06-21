@@ -19,6 +19,23 @@ async function markAsFavorite(user_id, recipe_id, personal) {
   return 0;
 }
 
+async function unmarkAsFavorite(user_id, recipe_id, personal) {
+  let is_personal;
+  if (personal === "false") {
+    is_personal = 0;
+  } else {
+    is_personal = 1;
+  }
+  let favorite = await isRecipeFavorite(user_id, recipe_id);
+  if (favorite == true) {
+    await DButils.execQuery(
+      `DELETE FROM FavoriteRecipes WHERE user_id='${user_id}' AND recipe_id=${recipe_id} AND is_personal='${is_personal}'`
+    );
+    return 1;
+  }
+  return 0;
+}
+
 // get all favorite recipes by a user
 async function getFavoriteRecipes(user_id) {
   const recipes = await DButils.execQuery(

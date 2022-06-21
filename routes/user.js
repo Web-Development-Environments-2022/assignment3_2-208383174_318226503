@@ -27,7 +27,6 @@ router.use(async function (req, res, next) {
  */
 router.post("/favorites", async (req, res, next) => {
   try {
-    console.log(1);
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
     const is_personal = req.query.personal;
@@ -40,6 +39,26 @@ router.post("/favorites", async (req, res, next) => {
       res.status(200).send("The Recipe successfully saved as favorite");
     } else {
       throw { status: 409, message: "recipe was already added as favorite" };
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/favorites", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    const recipe_id = req.body.recipeId;
+    const is_personal = req.query.personal;
+    let ans = await dbFunctionality_utils.unmarkAsFavorite(
+      user_id,
+      recipe_id,
+      is_personal
+    );
+    if (ans == 1) {
+      res.status(200).send("The Recipe successfully removed as favorite");
+    } else {
+      throw { status: 409, message: "recipe is not marked as favorite" };
     }
   } catch (error) {
     next(error);
