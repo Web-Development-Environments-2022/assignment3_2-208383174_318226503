@@ -247,7 +247,7 @@ async function getRecipeDetails(user_id, recipe_id) {
 
   return {
     previewInfo: preview,
-    ingredientsAndQuantities: ingredientsAndQuantities,
+    extendedIngredients: ingredientsAndQuantities,
     analyzedInstructions: analyzedInstructions,
     servingSize: servings,
   };
