@@ -185,24 +185,55 @@ async function getRandomRecipies(user_id, num_of_recipes) {
 async function getAdditionalInformation(recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
   let extendedIngredients = recipe_info.data.extendedIngredients;
-  let analyzedInstructions = recipe_info.data.analyzedInstructions[0].steps;
+  let analyzedInstructions = recipe_info.data.analyzedInstructions;
   let ingredientsAndQuantities = [];
-  let instructions = [];
 
   for (let ingredient of extendedIngredients) {
     let { originalName, amount } = ingredient;
+    let unit = ingredient.measures.metric.unitLong;
     ingredientsAndQuantities.push({
       originalName: originalName,
       amount: amount,
+      unit: unit,
     });
   }
-  for (let instruction of analyzedInstructions) {
-    let { number, step } = instruction;
-    instructions.push({ number: number, step: step });
+
+  let analyzedInstructionArray = [];
+  for (let analyzedInstruction of analyzedInstructions) {
+    let name = analyzedInstruction.name;
+    let steps = [];
+    let all_steps = analyzedInstruction.steps;
+    for (let specific_step of all_steps) {
+      let { number, step } = specific_step;
+      let ingredients = [];
+      let all_ingredients = specific_step.ingredients;
+      for (let ingredient of all_ingredients) {
+        let name = ingredient.name;
+        ingredients.push(name);
+      }
+      let equipments = [];
+      let all_equipments = specific_step.equipment;
+      for (let equipment of all_equipments) {
+        let name = equipment.name;
+        equipments.push(name);
+      }
+      steps.push({
+        number: number,
+        step: step,
+        ingredients: ingredients,
+        equipment: equipments,
+      });
+    }
+
+    analyzedInstructionArray.push({
+      name: name,
+      steps: steps,
+    });
   }
+
   return {
     ingredientsAndQuantities: ingredientsAndQuantities,
-    instructions: instructions,
+    analyzedInstructions: analyzedInstructionArray,
     servings: recipe_info.data.servings,
   };
 }
@@ -210,14 +241,14 @@ async function getAdditionalInformation(recipe_id) {
 // Getting the full recipe details by id
 async function getRecipeDetails(user_id, recipe_id) {
   console.log("getting recipie info");
-  let { ingredientsAndQuantities, instructions, servings } =
+  let { ingredientsAndQuantities, analyzedInstructions, servings } =
     await getAdditionalInformation(recipe_id);
   let preview = await getRecipePreview(user_id, recipe_id);
 
   return {
     previewInfo: preview,
     ingredientsAndQuantities: ingredientsAndQuantities,
-    instructions: instructions,
+    analyzedInstructions: analyzedInstructions,
     servingSize: servings,
   };
 }
