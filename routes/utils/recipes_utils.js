@@ -189,10 +189,10 @@ async function getAdditionalInformation(recipe_id) {
   let ingredientsAndQuantities = [];
 
   for (let ingredient of extendedIngredients) {
-    let { originalName, amount } = ingredient;
+    let { name, amount } = ingredient;
     let unit = ingredient.measures.metric.unitLong;
     ingredientsAndQuantities.push({
-      originalName: originalName,
+      name: name,
       amount: amount,
       unit: unit,
     });
