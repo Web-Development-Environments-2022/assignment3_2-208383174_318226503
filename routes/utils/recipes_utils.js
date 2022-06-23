@@ -240,6 +240,13 @@ async function getAdditionalInformation(recipe_id) {
 
 // Getting the full recipe details by id
 async function getRecipeDetails(user_id, recipe_id) {
+  let first_time = true;
+  if (user_id != undefined) {
+    console.log("checking if first time");
+    let viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
+    console.log(viewed);
+    first_time = !viewed;
+  }
   console.log("getting recipie info");
   let { ingredientsAndQuantities, analyzedInstructions, servings } =
     await getAdditionalInformation(recipe_id);
@@ -250,15 +257,20 @@ async function getRecipeDetails(user_id, recipe_id) {
     extendedIngredients: ingredientsAndQuantities,
     analyzedInstructions: analyzedInstructions,
     servingSize: servings,
+    first_time: first_time,
   };
 }
 
 // Mark recipe as viewed and return it's details
 async function viewRecipe(user_id, recipe_id) {
+  console.log("view recipe function for user " + user_id);
+  let recipe_details = await getRecipeDetails(user_id, recipe_id);
+
   if (user_id != undefined) {
     await dbFunctionality_utils.viewRecipe(user_id, recipe_id);
   }
-  return await getRecipeDetails(user_id, recipe_id);
+
+  return recipe_details;
 }
 
 // Adding new personal recipe by a user
