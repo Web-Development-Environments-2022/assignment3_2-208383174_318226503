@@ -287,7 +287,10 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     instructions,
     analyzedInstructions,
   } = recipe_info.body;
-
+  console.log("info");
+  console.log(title);
+  console.log(ingredientsAndQuantities);
+  console.log(instructions);
   await dbFunctionality_utils.addNewRecipeToDb(
     user_id,
     title,

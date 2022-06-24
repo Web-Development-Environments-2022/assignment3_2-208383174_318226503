@@ -147,9 +147,12 @@ async function addIngredientsAndQuantities(
   ingredientsAndQuantities
 ) {
   for (let ingredient of ingredientsAndQuantities) {
-    let { originalName, amount } = ingredient;
+    let { ingredientName, amount, unit } = ingredient;
+    if (unit == "" || unit == undefined) {
+      unit = null;
+    }
     await DButils.execQuery(
-      `insert into ingredientsAndQuantities values ('${originalName}','${amount}','${recipe_id}','${unit}')`
+      `insert into ingredientsAndQuantities values ('${ingredientName}','${amount}','${recipe_id}','${unit}')`
     );
   }
   console.log("finish insert to ingredientsAndQuantities");
