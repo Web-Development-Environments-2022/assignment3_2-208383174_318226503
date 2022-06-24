@@ -65,6 +65,7 @@ async function isRecipeViewed(user_id, recipe_id) {
   const viewedRecipe = await DButils.execQuery(
     `select * from usersRecipesViews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
   );
+  console.log(viewedRecipe.length);
   return viewedRecipe.length != 0;
 }
 
@@ -80,6 +81,11 @@ async function viewRecipe(user_id, recipe_id) {
   await DButils.execQuery(
     `insert into usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
   );
+  console.log(`inserting user ${user_id} watched ${recipe_id}`);
+}
+
+async function isFirstTime(user_id, recipe_id) {
+  return !isRecipeViewed(user_id, recipe_id);
 }
 
 // get the n newest viewed recipes by a user
@@ -109,13 +115,19 @@ async function addNewRecipeToDb(
   console.log("adding new recipe to db");
   popularity = 0;
   const newRecipe = await DButils.execQuery(
-    `INSERT INTO usersPersonalRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}','${readyInMinutes}','${popularity}',${vegan},'${vegetarian}','${glutenFree}', '${servingSize}')`
+    `INSERT INTO usersPersonalRecipes (user_id, title, image, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servingSize) VALUES ('${user_id}','${title}','${image}',${readyInMinutes},'${popularity}',${vegan},${vegetarian},${glutenFree}, ${servingSize})`
   );
   console.log("finished adding to userPersonalRecipes");
   let recipe_id = newRecipe.insertId;
-  await addIngredientsAndQuantities(recipe_id, ingredientsAndQuantities);
-  await addInstructions(recipe_id, instructions);
-  await addAnalyzedInstructions(recipe_id, analyzedInstructions);
+  if (ingredientsAndQuantities != undefined) {
+    await addIngredientsAndQuantities(recipe_id, ingredientsAndQuantities);
+  }
+  if (instructions != undefined) {
+    await addInstructions(recipe_id, instructions);
+  }
+  if (analyzedInstructions) {
+    await addAnalyzedInstructions(recipe_id, analyzedInstructions);
+  }
 }
 
 // adding instructions to a personal user
@@ -137,7 +149,7 @@ async function addIngredientsAndQuantities(
   for (let ingredient of ingredientsAndQuantities) {
     let { originalName, amount } = ingredient;
     await DButils.execQuery(
-      `insert into ingredientsAndQuantities values ('${originalName}','${amount}','${recipe_id}')`
+      `insert into ingredientsAndQuantities values ('${originalName}','${amount}','${recipe_id}','${unit}')`
     );
   }
   console.log("finish insert to ingredientsAndQuantities");
@@ -463,3 +475,4 @@ exports.getOrderOfLastRecipe = getOrderOfLastRecipe;
 exports.removeRecipeFromMeal = removeRecipeFromMeal;
 exports.removeAllRecipesFromMeal = removeAllRecipesFromMeal;
 exports.unmarkAsFavorite = unmarkAsFavorite;
+exports.isFirstTime = isFirstTime;
