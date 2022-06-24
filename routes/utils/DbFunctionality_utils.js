@@ -4,7 +4,7 @@ const DButils = require("./DButils");
 // mark the recipe as favorite by a logged in user- both from api and personals
 async function markAsFavorite(user_id, recipe_id, personal) {
   let is_personal;
-  if (personal === "false") {
+  if (personal == "false") {
     is_personal = 0;
   } else {
     is_personal = 1;
@@ -65,7 +65,6 @@ async function isRecipeViewed(user_id, recipe_id) {
   const viewedRecipe = await DButils.execQuery(
     `select * from usersRecipesViews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
   );
-  console.log(viewedRecipe.length);
   return viewedRecipe.length != 0;
 }
 
@@ -128,6 +127,7 @@ async function addNewRecipeToDb(
   if (analyzedInstructions) {
     await addAnalyzedInstructions(recipe_id, analyzedInstructions);
   }
+  console.log(`finished adding recipe by user ${user_id} with title ${title}`);
 }
 
 // adding instructions to a personal user
@@ -408,7 +408,6 @@ async function getOrderOfLastRecipe(user_id) {
   await DButils.execQuery(
     `SELECT MAX(order_num) FROM mealplanningrecipes WHERE user_id=${user_id}`
   ).then((res) => {
-    console.log(res[0]["MAX(order_num)"]);
     max_order = Number(res[0]["MAX(order_num)"]) + 1;
   });
   console.log(`max_order is: ${max_order}`);
@@ -427,7 +426,6 @@ async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
   await DButils.execQuery(
     `SELECT order_num FROM mealplanningrecipes WHERE user_id=${user_id} AND recipe_id=${recipeId}`
   ).then((res) => {
-    console.log(res[0]["order_num"]);
     old_order = Number(res[0]["order_num"]);
   });
   console.log(`old_order is: ${old_order}`);

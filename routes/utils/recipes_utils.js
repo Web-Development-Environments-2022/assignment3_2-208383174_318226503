@@ -172,7 +172,16 @@ async function getNewestViewed(user_id, num_of_recipes) {
 // Retrieving the wanted number of random recipes
 async function getRandomRecipies(user_id, num_of_recipes) {
   let random_pool = await getRandomRecipiesFromSpoonacular();
-  let recipes = random_pool.data.recipes;
+  let recipes = random_pool.data.recipes.filter(
+    (random) =>
+      random.instructions != "" &&
+      random.image &&
+      random.image != null &&
+      random.title != null
+  );
+  if (recipes.length < num_of_recipes) {
+    getRandomRecipies(user_id, num_of_recipes);
+  }
   let selected_recipes = [];
   for (let i = 0; i < num_of_recipes; i++) {
     let recipe_id = recipes[i].id;
@@ -244,7 +253,6 @@ async function getRecipeDetails(user_id, recipe_id) {
   if (user_id != undefined) {
     console.log("checking if first time");
     let viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
-    console.log(viewed);
     first_time = !viewed;
   }
   console.log("getting recipie info");
@@ -287,10 +295,6 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     instructions,
     analyzedInstructions,
   } = recipe_info.body;
-  console.log("info");
-  console.log(title);
-  console.log(ingredientsAndQuantities);
-  console.log(instructions);
   await dbFunctionality_utils.addNewRecipeToDb(
     user_id,
     title,

@@ -29,6 +29,8 @@ router.post("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
+    console.log(`recipe ${recipe_id} was mark as favorite by ${user_id}`);
+
     const is_personal = req.query.personal;
     let ans = await dbFunctionality_utils.markAsFavorite(
       user_id,

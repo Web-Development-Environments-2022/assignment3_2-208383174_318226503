@@ -1,7 +1,6 @@
 var mysql = require("mysql");
 require("dotenv").config();
 
-console.log(process.env.host);
 const config = {
   connectionLimit: 4,
   host: process.env.host, //"localhost"
