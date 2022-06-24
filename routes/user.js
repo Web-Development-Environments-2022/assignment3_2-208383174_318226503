@@ -51,6 +51,8 @@ router.delete("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
+    console.log(`recipe ${recipe_id} was unmark as favorite by ${user_id}`);
+
     const is_personal = req.body.personal;
     let ans = await dbFunctionality_utils.unmarkAsFavorite(
       user_id,
