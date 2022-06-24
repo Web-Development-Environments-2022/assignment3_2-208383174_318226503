@@ -295,7 +295,7 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     instructions,
     analyzedInstructions,
   } = recipe_info.body;
-  await dbFunctionality_utils.addNewRecipeToDb(
+  let recipe_id = await dbFunctionality_utils.addNewRecipeToDb(
     user_id,
     title,
     image,
@@ -308,6 +308,8 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     instructions,
     analyzedInstructions
   );
+  console.log(`id of new recipe: ${recipe_id} `);
+  return recipe_id;
 }
 
 // getting the full information about a recipe

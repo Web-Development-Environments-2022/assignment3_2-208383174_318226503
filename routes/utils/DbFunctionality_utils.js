@@ -94,6 +94,7 @@ async function getNewestViewedRecipes(user_id, num_of_recipes) {
     LIMIT ${num_of_recipes};
     `
   );
+  console.log("the last 3 viewed recipes were " + recipes_id);
   return recipes_id;
 }
 
@@ -127,7 +128,10 @@ async function addNewRecipeToDb(
   if (analyzedInstructions) {
     await addAnalyzedInstructions(recipe_id, analyzedInstructions);
   }
-  console.log(`finished adding recipe by user ${user_id} with title ${title}`);
+  console.log(
+    `finished adding recipe by user ${user_id} with title ${title} and id ${recipe_id}`
+  );
+  return recipe_id;
 }
 
 // adding instructions to a personal user
