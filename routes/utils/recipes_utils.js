@@ -319,7 +319,11 @@ async function getPersonalFull(recipe_id) {
     await dbFunctionality_utils.getAdditionalInformationPersonal(recipe_id);
   const ingredients = additional.ingredients;
   const instructions = additional.instructions;
-  return { preview, ingredients, instructions };
+  return {
+    previewInfo: preview,
+    extendedIngredients: ingredients,
+    analyzedInstructions: instructions,
+  };
 }
 
 // Getting the personal recipe preview information
@@ -330,7 +334,7 @@ async function getPersonalRecipePreviewFromDB(recipe_id) {
     title: recipe.title,
     image: recipe.image,
     readyInMinutes: recipe.readyInMinutes,
-    popularity: 0,
+    aggregateLikes: 0,
     vegan: recipe.vegan === "1",
     vegetarian: recipe.vegetarian === "1",
     glutenFree: recipe.glutenFree === "1",
