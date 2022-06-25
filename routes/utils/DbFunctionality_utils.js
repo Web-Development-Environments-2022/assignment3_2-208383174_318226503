@@ -163,11 +163,22 @@ async function addIngredientsAndQuantities(
 }
 
 // getting the preview information of a personal recipe
-async function getPersonalRecipePreview(recipe_id) {
-  const personalRecipe = await DButils.execQuery(
-    `SELECT * FROM usersPersonalRecipes WHERE recipe_id = ${recipe_id}`
+async function getPersonalRecipePreview(user_id, recipe_id) {
+  console.log(
+    `getting personal recipe ${recipe_id} by user ${user_id} from db`
   );
-  return personalRecipe[0];
+  try {
+    const personalRecipe = await DButils.execQuery(
+      `SELECT * FROM usersPersonalRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
+    );
+    console.log(personalRecipe);
+    return personalRecipe[0];
+  } catch (error) {
+    console.log(
+      "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+    );
+    return;
+  }
 }
 
 // getting the ingredients and instructions to a personal recipe
@@ -432,7 +443,6 @@ async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
   ).then((res) => {
     old_order = Number(res[0]["order_num"]);
   });
-  console.log(`old_order is: ${old_order}`);
 
   if (old_order < neworder) {
     await DButils.execQuery(`UPDATE mealplanningrecipes 
