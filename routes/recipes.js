@@ -2,23 +2,23 @@ var express = require("express");
 var router = express.Router();
 const recipes_utils = require("./utils/recipes_utils");
 
-// /**
-//  * Getting 3 random recipes
-//  * Ror the Main Page
-//  */
-// router.get("/random", async (req, res, next) => {
-//   const user_id = req.session.user_id;
-//   let num_of_recipes = 3;
-//   try {
-//     let random_recipes = await recipes_utils.getRandomRecipies(
-//       user_id,
-//       num_of_recipes
-//     );
-//     res.send(random_recipes);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+/**
+ * Getting 3 random recipes
+ * Ror the Main Page
+ */
+router.get("/random", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  let num_of_recipes = 3;
+  try {
+    let random_recipes = await recipes_utils.getRandomRecipies(
+      user_id,
+      num_of_recipes
+    );
+    res.send(random_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.get("/random", async (req, res, next) => {
   const user_id = req.session.user_id;
@@ -143,12 +143,22 @@ router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
  * Returns a full details of a recipe by its id
  */
 router.get("/:recipeId", async (req, res, next) => {
-  console.log(
-    `recipe detail function. recipe id ${req.params.recipeId} user id ${req.session.user_id}`
-  );
+  let is_personal = req.query.isPersonal;
   const user_id = req.session.user_id;
+  const recipe_id = req.params.recipeId;
+  if (is_personal === undefined) {
+    is_personal = false;
+  }
+  console.log(
+    `recipe detail function. recipe id ${req.params.recipeId} user id ${req.session.user_id} and is personal ${is_personal}`
+  );
   try {
-    const recipe = await recipes_utils.viewRecipe(user_id, req.params.recipeId);
+    let recipe;
+    if (is_personal == "true") {
+      recipe = await recipes_utils.getPersonalFull(user_id, recipe_id);
+    } else {
+      recipe = await recipes_utils.viewRecipe(user_id, recipe_id);
+    }
     res.send(recipe);
   } catch (error) {
     next(error);

@@ -174,9 +174,6 @@ async function getPersonalRecipePreview(user_id, recipe_id) {
     console.log(personalRecipe);
     return personalRecipe[0];
   } catch (error) {
-    console.log(
-      "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
-    );
     return;
   }
 }

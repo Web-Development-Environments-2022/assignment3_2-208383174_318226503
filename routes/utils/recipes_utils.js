@@ -45,11 +45,13 @@ async function getRecipePreview(user_id, recipe_id) {
 }
 
 // Getting a personal recipe preview information
-async function getRecipePreviewPersonal(user_id, recipe_id) {
+async function getRecipePreviewPersonal(user_id, recipe_id, is_favorite) {
   let recipe_info = await getPersonalRecipePreviewFromDB(user_id, recipe_id);
-  let is_favorite = false;
+  if (is_favorite == undefined) {
+    is_favorite = false;
+  }
   let is_viewed = true;
-  return await createPreviewObject(recipe_info, is_favorite, is_viewed, true);
+  return await createPreviewObject(recipe_info, is_favorite, is_viewed);
 }
 
 /**
@@ -357,12 +359,15 @@ async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
 // Getting all of the user's favorite recipes
 async function getFavoriteRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getFavoriteRecipes(user_id);
+  console.log("1 " + recipes);
   let recipes_preview = [];
   for (let recipe of recipes) {
     if (recipe.is_personal === "0") {
       recipes_preview.push(await getRecipePreview(user_id, recipe.recipe_id));
     } else {
-      recipes_preview.push(await getRecipePreviewPersonal(recipe.recipe_id));
+      recipes_preview.push(
+        await getRecipePreviewPersonal(user_id, recipe.recipe_id, true)
+      );
     }
   }
   return recipes_preview;
