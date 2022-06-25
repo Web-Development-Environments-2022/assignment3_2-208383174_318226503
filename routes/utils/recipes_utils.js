@@ -71,7 +71,17 @@ async function createPreviewObject(
     vegan,
     vegetarian,
     glutenFree,
+    servings,
   } = recipe_info;
+
+  console.log(readyInMinutes);
+
+  if (readyInMinutes == null) {
+    readyInMinutes = 0;
+  }
+  if (servings == null) {
+    servings = 0;
+  }
 
   return {
     id: id,
@@ -85,6 +95,7 @@ async function createPreviewObject(
     isFavorite: is_favorite,
     isViewed: is_viewed,
     isPersonal: is_personal,
+    servingSize: servings,
   };
 }
 
@@ -243,7 +254,6 @@ async function getAdditionalInformation(recipe_id) {
   return {
     ingredientsAndQuantities: ingredientsAndQuantities,
     analyzedInstructions: analyzedInstructionArray,
-    servings: recipe_info.data.servings,
   };
 }
 
@@ -264,7 +274,6 @@ async function getRecipeDetails(user_id, recipe_id) {
     previewInfo: preview,
     extendedIngredients: ingredientsAndQuantities,
     analyzedInstructions: analyzedInstructions,
-    servingSize: servings,
     first_time: first_time,
   };
 }
