@@ -110,15 +110,9 @@ router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const personal_recipes = await recipes_utils.getPersonalRecipes(user_id);
-    console.log("3 " + personal_recipes);
-    console.log("4 " + (personal_recipes.length > 0));
-    console.log("5 " + (personal_recipes.length == 0));
-    console.log("6 " + (personal_recipes.length < 0));
     if (personal_recipes.length > 0) {
-      console.log("HERE TRUE");
       res.status(200).send(personal_recipes);
     } else {
-      console.log("HERE FALSE");
       res.status(204).send("you don't have personal recipes");
     }
   } catch (error) {
