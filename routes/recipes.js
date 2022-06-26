@@ -6,19 +6,19 @@ const recipes_utils = require("./utils/recipes_utils");
  * Getting 3 random recipes
  * Ror the Main Page
  */
-// router.get("/random", async (req, res, next) => {
-//   const user_id = req.session.user_id;
-//   let num_of_recipes = 3;
-//   try {
-//     let random_recipes = await recipes_utils.getRandomRecipies(
-//       user_id,
-//       num_of_recipes
-//     );
-//     res.send(random_recipes);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+router.get("/random", async (req, res, next) => {
+  const user_id = req.session.user_id;
+  let num_of_recipes = 3;
+  try {
+    let random_recipes = await recipes_utils.getRandomRecipies(
+      user_id,
+      num_of_recipes
+    );
+    res.send(random_recipes);
+  } catch (error) {
+    next(error);
+  }
+});
 
 // router.get("/random", async (req, res, next) => {
 //   const user_id = req.session.user_id;
@@ -224,12 +224,12 @@ router.get("/:recipeId", async (req, res, next) => {
     `recipe detail function. recipe id ${req.params.recipeId} user id ${req.session.user_id} and is personal ${is_personal}`
   );
   try {
-    let recipe;
-    if (is_personal == "true") {
-      recipe = await recipes_utils.getPersonalFull(user_id, recipe_id);
-    } else {
-      recipe = await recipes_utils.viewRecipe(user_id, recipe_id);
-    }
+    //   let recipe;
+    //   if (is_personal == "true") {
+    // recipe = await recipes_utils.getPersonalFull(user_id, recipe_id);
+    // } else {
+    recipe = await recipes_utils.viewRecipe(user_id, recipe_id);
+    // }
     res.send(recipe);
   } catch (error) {
     next(error);

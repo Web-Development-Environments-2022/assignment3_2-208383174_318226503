@@ -211,13 +211,16 @@ router.get("/personal/:recipeId", async (req, res, next) => {
   try {
     const recipe_id = req.params.recipeId;
     const user_id = req.session.user_id;
-
+    let receips;
+    let a = await dbFunctionality_utils.getHighestPersonalIndex();
+    if (recipe_id > a || recipe_id === undefined) {
+      receips = await recipes_utils.viewRecipe(user_id, recipe_id);
+    } else {
+      receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
+    }
     console.log(`getting personal recipe ${recipe_id}`);
-    const personal_recipes = await recipes_utils.getPersonalFull(
-      user_id,
-      recipe_id
-    );
-    res.status(200).send(personal_recipes);
+
+    res.status(200).send(receips);
   } catch (error) {
     next(error);
   }

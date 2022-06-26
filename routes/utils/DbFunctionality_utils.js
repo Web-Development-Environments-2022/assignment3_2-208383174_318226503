@@ -1,6 +1,13 @@
 const { use } = require("../user");
 const DButils = require("./DButils");
 
+async function getHighestPersonalIndex() {
+  let reipce_id = await DButils.execQuery(
+    `SELECT recipe_id FROM userspersonalrecipes ORDER BY RECIPE_ID DESC LIMIT 1;`
+  );
+  return reipce_id[0].recipe_id;
+}
+
 // mark the recipe as favorite by a logged in user- both from api and personals
 async function markAsFavorite(user_id, recipe_id, personal) {
   let is_personal;
@@ -481,3 +488,4 @@ exports.removeRecipeFromMeal = removeRecipeFromMeal;
 exports.removeAllRecipesFromMeal = removeAllRecipesFromMeal;
 exports.unmarkAsFavorite = unmarkAsFavorite;
 exports.isFirstTime = isFirstTime;
+exports.getHighestPersonalIndex = getHighestPersonalIndex;
