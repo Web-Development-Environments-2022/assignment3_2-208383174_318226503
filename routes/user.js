@@ -212,8 +212,10 @@ router.get("/personal/:recipeId", async (req, res, next) => {
     const recipe_id = req.params.recipeId;
     const user_id = req.session.user_id;
     let receips;
-    let a = await dbFunctionality_utils.getHighestPersonalIndex();
-    if (recipe_id > a || recipe_id === undefined) {
+    if (
+      recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
+      recipe_id === undefined
+    ) {
       receips = await recipes_utils.viewRecipe(user_id, recipe_id);
     } else {
       receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
