@@ -162,9 +162,6 @@ async function addIngredientsAndQuantities(
 
 // getting the preview information of a personal recipe
 async function getPersonalRecipePreview(user_id, recipe_id) {
-  console.log(
-    `getting personal recipe ${recipe_id} by user ${user_id} from db`
-  );
   try {
     const personalRecipe = await DButils.execQuery(
       `SELECT * FROM usersPersonalRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
