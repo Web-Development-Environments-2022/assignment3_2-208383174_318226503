@@ -173,6 +173,9 @@ async function getPersonalRecipePreview(user_id, recipe_id) {
     const personalRecipe = await DButils.execQuery(
       `SELECT * FROM usersPersonalRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
     );
+    console.log(
+      `getting from db peronsl recipe ${recipe_id} with user id ${user_id}`
+    );
     return personalRecipe[0];
   } catch (error) {
     return;
@@ -199,6 +202,7 @@ async function getIngredientsPersonal(recipe_id) {
     all_ingredients.push({
       name: ingredient.name,
       amount: ingredient.amount,
+      unit: ingredient.unit,
     });
   }
   return all_ingredients;
@@ -401,7 +405,7 @@ async function getAnalyzedEquipmentPersonal(step_num, recipe_id, element_name) {
   }
 }
 
-async function getFamilyRecipes(user_id){
+async function getFamilyRecipes(user_id) {
   const recipes = await DButils.execQuery(
     `SELECT * FROM userfamilyrecipes WHERE user_id = ${user_id}`
   );
@@ -475,8 +479,6 @@ async function removeAllRecipesFromMeal(user_id) {
     `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id};`
   );
 }
-
-
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;

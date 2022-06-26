@@ -73,14 +73,14 @@ async function createPreviewObject(
     vegan,
     vegetarian,
     glutenFree,
-    servings,
+    servingSize,
   } = recipe_info;
 
   if (readyInMinutes == null) {
     readyInMinutes = 0;
   }
-  if (servings == null) {
-    servings = 0;
+  if (servingSize == null) {
+    servingSize = 0;
   }
 
   return {
@@ -95,7 +95,7 @@ async function createPreviewObject(
     isFavorite: is_favorite,
     isViewed: is_viewed,
     isPersonal: is_personal,
-    servingSize: servings,
+    servingSize: servingSize,
   };
 }
 
@@ -349,6 +349,7 @@ async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
     vegan: recipe.vegan === "1",
     vegetarian: recipe.vegetarian === "1",
     glutenFree: recipe.glutenFree === "1",
+    servingSize: recipe.servingSize,
   };
 }
 
@@ -515,7 +516,7 @@ async function removeAllRecipeFromMeal(user_id) {
   await dbFunctionality_utils.removeAllRecipesFromMeal(user_id);
 }
 
-async function getFamilyRecipes(user_id){
+async function getFamilyRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getFamilyRecipes(user_id);
   return recipes;
 }
@@ -539,4 +540,4 @@ exports.changeRecipeOrder = changeRecipeOrder;
 exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
 exports.removeRecipeFromMeal = removeRecipeFromMeal;
 exports.removeAllRecipeFromMeal = removeAllRecipeFromMeal;
-exports.getFamilyRecipes =getFamilyRecipes;
+exports.getFamilyRecipes = getFamilyRecipes;
