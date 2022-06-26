@@ -47,7 +47,7 @@ async function getFavoriteRecipes(user_id) {
 // get all personal recipes by a user
 async function getPersonalRecipes(user_id) {
   const recipes_id = await DButils.execQuery(
-    `select recipe_id from usersPersonalRecipes where user_id='${user_id}'`
+    `select recipe_id from usersPersonalRecipes where user_id='${user_id}' ORDER BY RECIPE_ID DESC`
   );
   return recipes_id;
 }
@@ -72,7 +72,6 @@ async function isRecipeViewed(user_id, recipe_id) {
 async function viewRecipe(user_id, recipe_id) {
   let isViewed = await isRecipeViewed(user_id, recipe_id);
   if (isViewed) {
-    console.log("recipe viewed");
     await DButils.execQuery(
       `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
     );
@@ -94,7 +93,6 @@ async function getNewestViewedRecipes(user_id, num_of_recipes) {
     LIMIT ${num_of_recipes};
     `
   );
-  console.log("the last 3 viewed recipes were " + recipes_id);
   return recipes_id;
 }
 
@@ -171,7 +169,6 @@ async function getPersonalRecipePreview(user_id, recipe_id) {
     const personalRecipe = await DButils.execQuery(
       `SELECT * FROM usersPersonalRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
     );
-    console.log(personalRecipe);
     return personalRecipe[0];
   } catch (error) {
     return;
@@ -422,7 +419,6 @@ async function getOrderOfLastRecipe(user_id) {
   ).then((res) => {
     max_order = Number(res[0]["MAX(order_num)"]) + 1;
   });
-  console.log(`max_order is: ${max_order}`);
   return max_order;
 }
 

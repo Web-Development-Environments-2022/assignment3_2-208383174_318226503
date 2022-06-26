@@ -51,7 +51,7 @@ async function getRecipePreviewPersonal(user_id, recipe_id, is_favorite) {
     is_favorite = false;
   }
   let is_viewed = true;
-  return await createPreviewObject(recipe_info, is_favorite, is_viewed);
+  return await createPreviewObject(recipe_info, is_favorite, is_viewed, true);
 }
 
 /**
@@ -75,8 +75,6 @@ async function createPreviewObject(
     glutenFree,
     servings,
   } = recipe_info;
-
-  console.log(readyInMinutes);
 
   if (readyInMinutes == null) {
     readyInMinutes = 0;
@@ -263,11 +261,9 @@ async function getAdditionalInformation(recipe_id) {
 async function getRecipeDetails(user_id, recipe_id) {
   let first_time = true;
   if (user_id != undefined) {
-    console.log("checking if first time");
     let viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
     first_time = !viewed;
   }
-  console.log("getting recipie info");
   let { ingredientsAndQuantities, analyzedInstructions, servings } =
     await getAdditionalInformation(recipe_id);
   let preview = await getRecipePreview(user_id, recipe_id);
@@ -319,7 +315,6 @@ async function addNewRecipeByUser(user_id, recipe_info) {
     instructions,
     analyzedInstructions
   );
-  console.log(`id of new recipe: ${recipe_id} `);
   return recipe_id;
 }
 
@@ -343,7 +338,6 @@ async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
     user_id,
     recipe_id
   );
-  console.log(recipe);
   return {
     id: recipe.recipe_id,
     title: recipe.title,
@@ -359,7 +353,6 @@ async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
 // Getting all of the user's favorite recipes
 async function getFavoriteRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getFavoriteRecipes(user_id);
-  console.log("1 " + recipes);
   let recipes_preview = [];
   for (let recipe of recipes) {
     if (recipe.is_personal === "0") {
@@ -383,8 +376,6 @@ async function getPersonalRecipes(user_id) {
       await getRecipePreviewPersonal(user_id, recipe.recipe_id)
     );
   }
-  console.log("2 looping over the recipes ");
-  // console.log(recipes_preview);
 
   return recipes_preview;
 }
