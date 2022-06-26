@@ -401,6 +401,13 @@ async function getAnalyzedEquipmentPersonal(step_num, recipe_id, element_name) {
   }
 }
 
+async function getFamilyRecipes(user_id){
+  const recipes = await DButils.execQuery(
+    `SELECT * FROM userfamilyrecipes WHERE user_id = ${user_id}`
+  );
+  return recipes;
+}
+
 // ----------------------------- Bonus -----------------------------
 
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
@@ -469,6 +476,8 @@ async function removeAllRecipesFromMeal(user_id) {
   );
 }
 
+
+
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.isRecipeFavorite = isRecipeFavorite;
@@ -489,3 +498,4 @@ exports.removeAllRecipesFromMeal = removeAllRecipesFromMeal;
 exports.unmarkAsFavorite = unmarkAsFavorite;
 exports.isFirstTime = isFirstTime;
 exports.getHighestPersonalIndex = getHighestPersonalIndex;
+exports.getFamilyRecipes = getFamilyRecipes;

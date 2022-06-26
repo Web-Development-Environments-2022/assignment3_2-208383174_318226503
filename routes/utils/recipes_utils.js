@@ -515,6 +515,11 @@ async function removeAllRecipeFromMeal(user_id) {
   await dbFunctionality_utils.removeAllRecipesFromMeal(user_id);
 }
 
+async function getFamilyRecipes(user_id){
+  let recipes = await dbFunctionality_utils.getFamilyRecipes(user_id);
+  return recipes;
+}
+
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
@@ -534,3 +539,4 @@ exports.changeRecipeOrder = changeRecipeOrder;
 exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
 exports.removeRecipeFromMeal = removeRecipeFromMeal;
 exports.removeAllRecipeFromMeal = removeAllRecipeFromMeal;
+exports.getFamilyRecipes =getFamilyRecipes;

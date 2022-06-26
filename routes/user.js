@@ -121,6 +121,24 @@ router.get("/myRecipes", async (req, res, next) => {
 });
 
 /**
+ * Getting all the family recipes by a user
+ */
+ router.get("/myFamilyRecipes", async (req, res, next) => {
+  try {
+    const user_id = req.session.user_id;
+    console.log("in- get gamily recipes, user_id: "+user_id);
+    const family_recipes = await recipes_utils.getFamilyRecipes(user_id);
+    if (family_recipes.length > 0) {
+      res.status(200).send(family_recipes);
+    } else {
+      res.status(204).send("you don't have family recipes");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
  * Getting the 3 recipes that the user last viewed
  * For the Main Page
  */
