@@ -264,7 +264,7 @@ async function getRecipeDetails(user_id, recipe_id) {
     let viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
     first_time = !viewed;
   }
-  let { ingredientsAndQuantities, analyzedInstructions, servings } =
+  let { ingredientsAndQuantities, analyzedInstructions } =
     await getAdditionalInformation(recipe_id);
   let preview = await getRecipePreview(user_id, recipe_id);
 
@@ -325,10 +325,12 @@ async function getPersonalFull(user_id, recipe_id) {
     await dbFunctionality_utils.getAdditionalInformationPersonal(recipe_id);
   const ingredients = additional.ingredients;
   const instructions = additional.instructions;
+  let analyzedInstructionsArray = [];
+  analyzedInstructionsArray.push({ name: "", steps: instructions });
   return {
     previewInfo: preview,
     extendedIngredients: ingredients,
-    analyzedInstructions: instructions,
+    analyzedInstructions: analyzedInstructionsArray,
   };
 }
 
