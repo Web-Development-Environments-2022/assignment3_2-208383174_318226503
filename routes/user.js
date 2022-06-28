@@ -142,68 +142,18 @@ router.get("/myFamilyRecipes", async (req, res, next) => {
  * Getting the 3 recipes that the user last viewed
  * For the Main Page
  */
-// router.get("/lastThreeViewed", async (req, res, next) => {
-//   const user_id = req.session.user_id;
-//   console.log("getting the last 3 recipes viewed by user " + user_id);
-
-//   try {
-//     let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
-//     res.send(last_viewed_recipes);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 router.get("/lastThreeViewed", async (req, res, next) => {
   const user_id = req.session.user_id;
-  let num_of_recipes = 3;
+  console.log("getting the last 3 recipes viewed by user " + user_id);
+
   try {
-    let random_recipes = [
-      {
-        id: 716414,
-        title: "Red, White & Blue Crepes: Happy July 4th! @driscollsberry",
-        image: "https://spoonacular.com/recipeImages/716414-556x370.jpg",
-        readyInMinutes: 45,
-        popularity: 34,
-        vegan: true,
-        vegetarian: true,
-        glutenFree: true,
-        isFavorite: true,
-        isViewed: true,
-        isPersonal: false,
-      },
-      {
-        id: 716403,
-        title: "Easy Lemon Feta Greek Yogurt Dip",
-        image: "https://spoonacular.com/recipeImages/716403-556x370.jpg",
-        readyInMinutes: 15,
-        popularity: 252,
-        vegan: false,
-        vegetarian: true,
-        glutenFree: true,
-        isFavorite: false,
-        isViewed: false,
-        isPersonal: false,
-      },
-      {
-        id: 648339,
-        title: "Jalapeno Cheese Quick Bread",
-        image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
-        readyInMinutes: 45,
-        popularity: 36,
-        vegan: false,
-        vegetarian: true,
-        glutenFree: false,
-        isFavorite: false,
-        isViewed: true,
-        isPersonal: false,
-      },
-    ];
-    res.send(random_recipes);
+    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
+    res.send(last_viewed_recipes);
   } catch (error) {
     next(error);
   }
 });
+
 
 /* personal recipes */
 

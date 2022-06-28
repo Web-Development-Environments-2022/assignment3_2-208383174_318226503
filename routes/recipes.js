@@ -6,70 +6,20 @@ const recipes_utils = require("./utils/recipes_utils");
  * Getting 3 random recipes
  * Ror the Main Page
  */
-// router.get("/random", async (req, res, next) => {
-//   const user_id = req.session.user_id;
-//   let num_of_recipes = 3;
-//   try {
-//     let random_recipes = await recipes_utils.getRandomRecipies(
-//       user_id,
-//       num_of_recipes
-//     );
-//     res.send(random_recipes);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 router.get("/random", async (req, res, next) => {
   const user_id = req.session.user_id;
   let num_of_recipes = 3;
   try {
-    let random_recipes = [
-      {
-        id: 716414,
-        title: "Red, White & Blue Crepes: Happy July 4th! @driscollsberry",
-        image: "https://spoonacular.com/recipeImages/716414-556x370.jpg",
-        readyInMinutes: 45,
-        popularity: 34,
-        vegan: true,
-        vegetarian: true,
-        glutenFree: true,
-        isFavorite: true,
-        isViewed: true,
-        isPersonal: false,
-      },
-      {
-        id: 716403,
-        title: "Easy Lemon Feta Greek Yogurt Dip",
-        image: "https://spoonacular.com/recipeImages/716403-556x370.jpg",
-        readyInMinutes: 15,
-        popularity: 252,
-        vegan: false,
-        vegetarian: true,
-        glutenFree: true,
-        isFavorite: false,
-        isViewed: false,
-        isPersonal: false,
-      },
-      {
-        id: 648339,
-        title: "Jalapeno Cheese Quick Bread",
-        image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
-        readyInMinutes: 45,
-        popularity: 36,
-        vegan: false,
-        vegetarian: true,
-        glutenFree: false,
-        isFavorite: false,
-        isViewed: true,
-        isPersonal: false,
-      },
-    ];
+    let random_recipes = await recipes_utils.getRandomRecipies(
+      user_id,
+      num_of_recipes
+    );
     res.send(random_recipes);
   } catch (error) {
     next(error);
   }
 });
+
 
 /**
  * Getting the preview for a recipe
@@ -121,77 +71,6 @@ router.get("/search", async (req, res, next) => {
   }
 });
 
-// router.get("/search", async (req, res, next) => {
-//   let random_recipes = [
-//     {
-//       id: 716414,
-//       title: "Red, White & Blue Crepes: Happy July 4th! @driscollsberry",
-//       image: "https://spoonacular.com/recipeImages/716414-556x370.jpg",
-//       readyInMinutes: 45,
-//       popularity: 34,
-//       vegan: true,
-//       vegetarian: true,
-//       glutenFree: true,
-//       isFavorite: true,
-//       isViewed: true,
-//       isPersonal: false,
-//     },
-//     {
-//       id: 716403,
-//       title: "Easy Lemon Feta Greek Yogurt Dip",
-//       image: "https://spoonacular.com/recipeImages/716403-556x370.jpg",
-//       readyInMinutes: 15,
-//       popularity: 252,
-//       vegan: false,
-//       vegetarian: true,
-//       glutenFree: true,
-//       isFavorite: false,
-//       isViewed: false,
-//       isPersonal: false,
-//     },
-//     {
-//       id: 648339,
-//       title: "Jalapeno Cheese Quick Bread",
-//       image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
-//       readyInMinutes: 45,
-//       popularity: 36,
-//       vegan: false,
-//       vegetarian: true,
-//       glutenFree: false,
-//       isFavorite: false,
-//       isViewed: true,
-//       isPersonal: false,
-//     },
-//     {
-//       id: 648339,
-//       title: "Jalapeno Cheese Quick Bread",
-//       image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
-//       readyInMinutes: 45,
-//       popularity: 36,
-//       vegan: false,
-//       vegetarian: true,
-//       glutenFree: false,
-//       isFavorite: false,
-//       isViewed: true,
-//       isPersonal: false,
-//     },
-//     {
-//       id: 648339,
-//       title: "Jalapeno Cheese Quick Bread",
-//       image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
-//       readyInMinutes: 45,
-//       popularity: 36,
-//       vegan: false,
-//       vegetarian: true,
-//       glutenFree: false,
-//       isFavorite: false,
-//       isViewed: true,
-//       isPersonal: false,
-//     },
-//   ];
-//   res.send(random_recipes);
-// });
-
 /**
  * bonus- getting a recipe's alyzed instructions
  */
@@ -224,12 +103,7 @@ router.get("/:recipeId", async (req, res, next) => {
     `recipe detail function. recipe id ${req.params.recipeId} user id ${req.session.user_id} and is personal ${is_personal}`
   );
   try {
-    //   let recipe;
-    //   if (is_personal == "true") {
-    // recipe = await recipes_utils.getPersonalFull(user_id, recipe_id);
-    // } else {
     recipe = await recipes_utils.viewRecipe(user_id, recipe_id);
-    // }
     res.send(recipe);
   } catch (error) {
     next(error);
