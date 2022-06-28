@@ -7,7 +7,7 @@ const bcrypt = require("bcrypt");
 router.post("/Register", async (req, res, next) => {
   try {
     let user_details = {
-      username: req.body.username,
+      username: req.body.username.toLowerCase(),
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       country: req.body.country,
@@ -39,6 +39,7 @@ router.post("/Register", async (req, res, next) => {
 router.post("/Login", async (req, res, next) => {
   try {
     // check that username exists
+    let username = req.body.username.toLowerCase();
     const users = await DButils.execQuery("SELECT username FROM users");
     if (!users.find((x) => x.username === req.body.username))
       throw { status: 401, message: "Username or Password incorrect" };
