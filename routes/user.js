@@ -27,20 +27,22 @@ router.use(async function (req, res, next) {
  */
 router.post("/favorites", async (req, res, next) => {
   try {
-    const user_id = req.session.user_id;
-    const recipe_id = req.body.recipeId;
-    console.log(`recipe ${recipe_id} was mark as favorite by ${user_id}`);
+    if (recipe_id && is_personal) {
+      const user_id = req.session.user_id;
+      const recipe_id = req.body.recipeId;
+      console.log(`recipe ${recipe_id} was mark as favorite by ${user_id}`);
 
-    const is_personal = req.query.personal;
-    let ans = await dbFunctionality_utils.markAsFavorite(
-      user_id,
-      recipe_id,
-      is_personal
-    );
-    if (ans == 1) {
-      res.status(200).send("The Recipe successfully saved as favorite");
-    } else {
-      throw { status: 409, message: "recipe was already added as favorite" };
+      const is_personal = req.query.personal;
+      let marked = await dbFunctionality_utils.markAsFavorite(
+        user_id,
+        recipe_id,
+        is_personal
+      );
+      if (marked == true) {
+        res.status(200).send("The Recipe successfully saved as favorite");
+      } else {
+        throw { status: 409, message: "recipe was already added as favorite" };
+      }
     }
   } catch (error) {
     next(error);
@@ -49,20 +51,22 @@ router.post("/favorites", async (req, res, next) => {
 
 router.delete("/favorites", async (req, res, next) => {
   try {
-    const user_id = req.session.user_id;
-    const recipe_id = req.body.recipeId;
-    console.log(`recipe ${recipe_id} was unmark as favorite by ${user_id}`);
+    if (recipe_id && is_personal) {
+      const user_id = req.session.user_id;
+      const recipe_id = req.body.recipeId;
+      console.log(`recipe ${recipe_id} was unmark as favorite by ${user_id}`);
 
-    const is_personal = req.body.personal;
-    let ans = await dbFunctionality_utils.unmarkAsFavorite(
-      user_id,
-      recipe_id,
-      is_personal
-    );
-    if (ans == 1) {
-      res.status(200).send("The Recipe successfully removed as favorite");
-    } else {
-      throw { status: 409, message: "recipe is not marked as favorite" };
+      const is_personal = req.body.personal;
+      let unmarked = await dbFunctionality_utils.unmarkAsFavorite(
+        user_id,
+        recipe_id,
+        is_personal
+      );
+      if (unmarked == true) {
+        res.status(200).send("The Recipe successfully removed as favorite");
+      } else {
+        throw { status: 409, message: "recipe was not marked as favorite" };
+      }
     }
   } catch (error) {
     next(error);
@@ -92,11 +96,15 @@ router.get("/favorites", async (req, res, next) => {
 router.post("/add", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
-    let recipe_id = await recipes_utils.addNewRecipeByUser(user_id, req);
-    if (recipe_id != undefined) {
-      res
-        .status(200)
-        .send(` ${recipe_id} New Personal Recipe successfully added`);
+    if (req.body.title) {
+      let recipe_id = await recipes_utils.addNewRecipeByUser(user_id, req);
+      if (recipe_id != undefined) {
+        res
+          .status(200)
+          .send(` ${recipe_id} New Personal Recipe successfully added`);
+      } else {
+        throw new Error("there was an error while adding");
+      }
     }
   } catch (error) {
     next(error);
@@ -142,81 +150,40 @@ router.get("/myFamilyRecipes", async (req, res, next) => {
  * Getting the 3 recipes that the user last viewed
  * For the Main Page
  */
-// router.get("/lastThreeViewed", async (req, res, next) => {
-//   const user_id = req.session.user_id;
-//   console.log("getting the last 3 recipes viewed by user " + user_id);
-
-//   try {
-//     let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
-//     res.send(last_viewed_recipes);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 router.get("/lastThreeViewed", async (req, res, next) => {
   const user_id = req.session.user_id;
-  let num_of_recipes = 3;
+  console.log("getting the last 3 recipes viewed by user " + user_id);
   try {
-    let random_recipes = [
-      {
-        id: 716414,
-        title: "Red, White & Blue Crepes: Happy July 4th! @driscollsberry",
-        image: "https://spoonacular.com/recipeImages/716414-556x370.jpg",
-        readyInMinutes: 45,
-        popularity: 34,
-        vegan: true,
-        vegetarian: true,
-        glutenFree: true,
-        isFavorite: true,
-        isViewed: true,
-        isPersonal: false,
-      },
-      {
-        id: 716403,
-        title: "Easy Lemon Feta Greek Yogurt Dip",
-        image: "https://spoonacular.com/recipeImages/716403-556x370.jpg",
-        readyInMinutes: 15,
-        popularity: 252,
-        vegan: false,
-        vegetarian: true,
-        glutenFree: true,
-        isFavorite: false,
-        isViewed: false,
-        isPersonal: false,
-      },
-      {
-        id: 648339,
-        title: "Jalapeno Cheese Quick Bread",
-        image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
-        readyInMinutes: 45,
-        popularity: 36,
-        vegan: false,
-        vegetarian: true,
-        glutenFree: false,
-        isFavorite: false,
-        isViewed: true,
-        isPersonal: false,
-      },
-    ];
-    res.send(random_recipes);
+    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
+    if (last_viewed_recipes > 0) {
+      res.status(200).send(last_viewed_recipes);
+    } else {
+      res.status(204).send("you haven't watched any recipes yet");
+    }
   } catch (error) {
     next(error);
   }
 });
-
-/* personal recipes */
 
 /*
   getting a preview for a personal recipe
 */
 router.get("/personalPreview", async (req, res, next) => {
   try {
-    const recipe_id = req.params.recipeId;
-    const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
-      recipe_id
-    );
-    res.status(200).send(personal_recipes);
+    if (recipe_id) {
+      const recipe_id = req.params.recipeId;
+      const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
+        recipe_id
+      );
+      if (personal_recipes) {
+        res.status(200).send(personal_recipes);
+      } else {
+        res.status(204).send({
+          message: "no recipe was found with that id",
+          success: false,
+        });
+      }
+    }
   } catch (error) {
     next(error);
   }
@@ -227,24 +194,35 @@ router.get("/personalPreview", async (req, res, next) => {
 */
 router.get("/personal/:recipeId", async (req, res, next) => {
   try {
-    const recipe_id = req.params.recipeId;
-    const user_id = req.session.user_id;
-    let receips;
-    if (
-      recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
-      recipe_id === undefined
-    ) {
-      receips = await recipes_utils.viewRecipe(user_id, recipe_id);
-    } else {
-      receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
+    if (recipe_id) {
+      const recipe_id = req.params.recipeId;
+      const user_id = req.session.user_id;
+      let receips;
+      if (
+        recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
+        recipe_id === undefined
+      ) {
+        receips = await recipes_utils.viewRecipe(user_id, recipe_id);
+      } else {
+        receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
+      }
+      if (receips) {
+        res.status(200).send(receips);
+      } else {
+        res.status(204).send({
+          message: "no recipe was found with that id",
+          success: false,
+        });
+      }
     }
-    console.log(`getting personal recipe ${recipe_id}`);
-
-    res.status(200).send(receips);
   } catch (error) {
     next(error);
   }
 });
+
+// TODO- add value checking and check for null if we'll use the analyzed details
+
+/* bonus*/
 
 /* 
   getting the analyzed details of a personal recipe
@@ -260,7 +238,6 @@ router.get("/personalAnalyzed", async (req, res, next) => {
   }
 });
 
-/* bonus*/
 router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
   try {
@@ -275,7 +252,9 @@ router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
   }
 });
 
-//get UpcommingMeal recipes
+// TODO- add checkings to those functions
+
+// get UpcommingMeal recipes
 router.get("/getUpcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -338,6 +317,13 @@ router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+/**
+ * Error handling
+ */
+app.use(function (err, req, res) {
+  res.send(500).send("server error");
 });
 
 module.exports = router;

@@ -21,9 +21,9 @@ async function markAsFavorite(user_id, recipe_id, personal) {
     await DButils.execQuery(
       `insert into FavoriteRecipes values ('${user_id}',${recipe_id},'${is_personal}')`
     );
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 async function unmarkAsFavorite(user_id, recipe_id, personal) {
@@ -38,9 +38,9 @@ async function unmarkAsFavorite(user_id, recipe_id, personal) {
     await DButils.execQuery(
       `DELETE FROM FavoriteRecipes WHERE user_id='${user_id}' AND recipe_id=${recipe_id} AND is_personal='${is_personal}'`
     );
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 // get all favorite recipes by a user
