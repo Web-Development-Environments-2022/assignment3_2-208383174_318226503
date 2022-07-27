@@ -27,12 +27,11 @@ router.use(async function (req, res, next) {
  */
 router.post("/favorites", async (req, res, next) => {
   try {
-    if (recipe_id && is_personal) {
-      const user_id = req.session.user_id;
-      const recipe_id = req.body.recipeId;
+    const user_id = req.session.user_id;
+    const recipe_id = req.body.recipeId;
+    const is_personal = req.query.personal;
+    if (recipe_id) {
       console.log(`recipe ${recipe_id} was mark as favorite by ${user_id}`);
-
-      const is_personal = req.query.personal;
       let marked = await dbFunctionality_utils.markAsFavorite(
         user_id,
         recipe_id,
@@ -51,12 +50,12 @@ router.post("/favorites", async (req, res, next) => {
 
 router.delete("/favorites", async (req, res, next) => {
   try {
-    if (recipe_id && is_personal) {
-      const user_id = req.session.user_id;
-      const recipe_id = req.body.recipeId;
+    const user_id = req.session.user_id;
+    const recipe_id = req.body.recipeId;
+    const is_personal = req.body.personal;
+    if (recipe_id) {
       console.log(`recipe ${recipe_id} was unmark as favorite by ${user_id}`);
 
-      const is_personal = req.body.personal;
       let unmarked = await dbFunctionality_utils.unmarkAsFavorite(
         user_id,
         recipe_id,
@@ -154,8 +153,8 @@ router.get("/lastThreeViewed", async (req, res, next) => {
   const user_id = req.session.user_id;
   console.log("getting the last 3 recipes viewed by user " + user_id);
   try {
-    let last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
-    if (last_viewed_recipes > 0) {
+    const last_viewed_recipes = await recipes_utils.getNewestViewed(user_id, 3);
+    if (last_viewed_recipes.length > 0) {
       res.status(200).send(last_viewed_recipes);
     } else {
       res.status(204).send("you haven't watched any recipes yet");
@@ -322,7 +321,7 @@ router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
 /**
  * Error handling
  */
-app.use(function (err, req, res) {
+router.use(function (err, req, res) {
   res.send(500).send("server error");
 });
 

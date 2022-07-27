@@ -127,7 +127,7 @@ router.get("/:recipeId", async (req, res, next) => {
 /**
  * Error handling
  */
-app.use(function (err, req, res) {
+router.use(function (err, req, res) {
   res.send(500).send("server error");
 });
 
