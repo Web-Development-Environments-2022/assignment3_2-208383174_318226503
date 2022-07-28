@@ -5,6 +5,7 @@ const api_domain = "https://api.spoonacular.com/recipes";
 
 //  Get recipes list from spoonacular response and extract the relevant recipe data for preview
 async function getRecipeInformation(recipe_id) {
+  console.log("going to Spoonacular 2");
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
       includeNutrition: false,
@@ -15,6 +16,8 @@ async function getRecipeInformation(recipe_id) {
 
 // Accessing spoonacular for a random recipe
 async function getRandomRecipiesFromSpoonacular() {
+  console.log("going to Spoonacular 3");
+
   const response = await axios.get(`${api_domain}/random`, {
     params: {
       number: 10,
@@ -154,6 +157,8 @@ async function getSearchSpoonacular(
   if (sort === "popularity") {
     request_url = request_url.concat(`&sort=popularity`);
   }
+  console.log("going to Spoonacular 4");
+
   const response = await axios.get(request_url, {
     params: {
       number: num_of_recipes,
@@ -193,6 +198,7 @@ async function getRandomRecipies(user_id, num_of_recipes) {
   if (recipes.length < num_of_recipes) {
     getRandomRecipies(user_id, num_of_recipes);
   }
+
   let selected_recipes = [];
   for (let i = 0; i < num_of_recipes; i++) {
     let recipe_id = recipes[i].id;
@@ -387,6 +393,7 @@ async function getPersonalRecipes(user_id) {
 
 // getting a recipe's analyzed instruction from spoonacular
 async function getAnalyzedInstructionSpoonacular(recipe_id) {
+  console.log("going to Spoonacular 1");
   let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
   const response = await axios.get(request_url, {
     params: {

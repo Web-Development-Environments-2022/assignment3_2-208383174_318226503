@@ -174,7 +174,7 @@ router.get("/personalPreview", async (req, res, next) => {
       const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
         recipe_id
       );
-      if (personal_recipes) {
+      if (personal_recipes.length > 0) {
         res.status(200).send(personal_recipes);
       } else {
         res.status(204).send({
