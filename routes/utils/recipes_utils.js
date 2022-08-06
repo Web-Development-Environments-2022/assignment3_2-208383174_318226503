@@ -470,6 +470,7 @@ async function getPersonalAnalyzedInstructions(recipe_id) {
 
 /* bonus*/
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
+  console.log("personal in addRecipeToUpcommingMeal is: "+personal);
   await dbFunctionality_utils.addRecipeToUpcommingMeal(
     user_id,
     recipe_id,
@@ -484,11 +485,12 @@ async function getUpcommingMealRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
   let recipes_preview = [];
   for (let recipe of recipes) {
-    if (recipe.is_personal == 1) {
+    if (recipe.isPersonal == 1) {
       let r = await getRecipePreviewPersonal(user_id, recipe.recipe_id);
 
       recipes_preview.push({ order: recipe.order_num, recipe_preview: r });
     } else {
+      console.log("recipe.isPersonal: "+recipe.isPersonal);
       let r = await getRecipePreview(user_id, recipe.recipe_id);
       recipes_preview.push({ order: recipe.order_num, recipe_preview: r });
     }

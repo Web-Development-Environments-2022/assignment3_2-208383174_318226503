@@ -193,9 +193,11 @@ router.get("/personalPreview", async (req, res, next) => {
 */
 router.get("/personal/:recipeId", async (req, res, next) => {
   try {
-    if (recipe_id) {
+    // if (recipe_id) {
       const recipe_id = req.params.recipeId;
       const user_id = req.session.user_id;
+      console.log("recipe_id : "+recipe_id);
+      console.log("user_id : "+user_id);
       let receips;
       if (
         recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
@@ -203,7 +205,9 @@ router.get("/personal/:recipeId", async (req, res, next) => {
       ) {
         receips = await recipes_utils.viewRecipe(user_id, recipe_id);
       } else {
+        console.log("in else");
         receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
+        console.log(receips);
       }
       if (receips) {
         res.status(200).send(receips);
@@ -213,7 +217,7 @@ router.get("/personal/:recipeId", async (req, res, next) => {
           success: false,
         });
       }
-    }
+    // }
   } catch (error) {
     next(error);
   }
@@ -243,7 +247,7 @@ router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
     await recipes_utils.addRecipeToUpcommingMeal(
       user_id,
       req.params.recipeId,
-      req.query.personal
+      req.query.isPersonal
     );
     res.status(200).send("Recipe successfully added to Upcomming meal");
   } catch (error) {
@@ -271,7 +275,7 @@ router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
     const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
       user_id
     );
-    res.status(200).send(`total number of recipes ${meal_recipes}`);
+    res.status(200).send(meal_recipes);
   } catch (error) {
     next(error);
   }

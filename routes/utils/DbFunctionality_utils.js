@@ -82,9 +82,10 @@ async function viewRecipe(user_id, recipe_id) {
     await DButils.execQuery(
       `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
     );
+    console.log("delete view");
   }
   await DButils.execQuery(
-    `insert into usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
+    `INSERT INTO usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
   );
   console.log(`inserting user ${user_id} watched ${recipe_id}`);
 }
@@ -128,6 +129,7 @@ async function addNewRecipeToDb(
     await addIngredientsAndQuantities(recipe_id, ingredientsAndQuantities);
   }
   if (instructions != undefined) {
+    console.log("adding instructions to db");
     await addInstructions(recipe_id, instructions);
   }
   if (analyzedInstructions) {
@@ -416,6 +418,7 @@ async function getFamilyRecipes(user_id) {
 
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
   let personal_val;
+  console.log("personal in DBFunc addRecipeToUpcommingMeal is: "+personal);
   if (personal) {
     personal_val = 1;
   } else {
@@ -439,7 +442,7 @@ async function getOrderOfLastRecipe(user_id) {
 
 async function getRecipesUpcommingMeal(user_id) {
   return await DButils.execQuery(
-    `SELECT recipe_id,is_personal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
+    `SELECT recipe_id,isPersonal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
   );
 }
 
