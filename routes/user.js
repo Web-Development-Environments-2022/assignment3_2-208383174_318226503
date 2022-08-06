@@ -116,6 +116,7 @@ router.post("/add", async (req, res, next) => {
 router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
+    console.log("user id is: "+user_id);
     const personal_recipes = await recipes_utils.getPersonalRecipes(user_id);
     if (personal_recipes.length > 0) {
       res.status(200).send(personal_recipes);
@@ -302,11 +303,11 @@ router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
 });
 
 // remove recipe from list
-router.put("/removeRecipeFromMeal/:recipeId", async (req, res, next) => {
+router.put("/removeRecipeFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    await recipes_utils.removeRecipeFromMeal(user_id, req.params.recipeId);
-    res.status(200).send(`recipe ${req.params.recipeId} was deleted from meal`);
+    await recipes_utils.removeRecipeFromMeal(user_id, req.body.recipeId);
+    res.status(200).send(`recipe ${req.body.recipeId} was deleted from meal`);
   } catch (error) {
     next(error);
   }
