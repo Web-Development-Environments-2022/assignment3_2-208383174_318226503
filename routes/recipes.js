@@ -5,18 +5,65 @@ const recipes_utils = require("./utils/recipes_utils");
 /**
  * Getting 3 random recipes from spoonacular
  */
+// router.get("/random", async (req, res, next) => {
+//   const user_id = req.session.user_id;
+//   let NUM_OF_RECIPES = 3;
+//   try {
+//     let random_recipes = await recipes_utils.getRandomRecipies(
+//       user_id,
+//       NUM_OF_RECIPES
+//     );
+//     res.send(random_recipes);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
 router.get("/random", async (req, res, next) => {
   const user_id = req.session.user_id;
   let NUM_OF_RECIPES = 3;
-  try {
-    let random_recipes = await recipes_utils.getRandomRecipies(
-      user_id,
-      NUM_OF_RECIPES
-    );
-    res.send(random_recipes);
-  } catch (error) {
-    next(error);
-  }
+  let random_recipes = [
+    {
+      id: 716414,
+      title: "Red, White & Blue Crepes: Happy July 4th! @driscollsberry",
+      image: "https://spoonacular.com/recipeImages/716414-556x370.jpg",
+      readyInMinutes: 45,
+      popularity: 34,
+      vegan: true,
+      vegetarian: true,
+      glutenFree: true,
+      isFavorite: true,
+      isViewed: true,
+      isPersonal: false,
+    },
+    {
+      id: 716403,
+      title: "Easy Lemon Feta Greek Yogurt Dip",
+      image: "https://spoonacular.com/recipeImages/716403-556x370.jpg",
+      readyInMinutes: 15,
+      popularity: 252,
+      vegan: false,
+      vegetarian: true,
+      glutenFree: true,
+      isFavorite: false,
+      isViewed: false,
+      isPersonal: false,
+    },
+    {
+      id: 648339,
+      title: "Jalapeno Cheese Quick Bread",
+      image: "https://spoonacular.com/recipeImages/648339-556x370.jpg",
+      readyInMinutes: 45,
+      popularity: 36,
+      vegan: false,
+      vegetarian: true,
+      glutenFree: false,
+      isFavorite: false,
+      isViewed: true,
+      isPersonal: false,
+    },
+  ];
+  res.send(random_recipes);
 });
 
 /**
@@ -127,8 +174,8 @@ router.get("/:recipeId", async (req, res, next) => {
 /**
  * Error handling
  */
-router.use(function (err, req, res) {
-  res.send(500).send("server error");
+router.use(function (err, req, res, next) {
+  res.status(500).send("server error");
 });
 
 module.exports = router;

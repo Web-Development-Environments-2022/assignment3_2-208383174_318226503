@@ -116,7 +116,7 @@ router.post("/add", async (req, res, next) => {
 router.get("/myRecipes", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    console.log("user id is: "+user_id);
+    console.log("user id is: " + user_id);
     const personal_recipes = await recipes_utils.getPersonalRecipes(user_id);
     if (personal_recipes.length > 0) {
       res.status(200).send(personal_recipes);
@@ -195,29 +195,29 @@ router.get("/personalPreview", async (req, res, next) => {
 router.get("/personal/:recipeId", async (req, res, next) => {
   try {
     // if (recipe_id) {
-      const recipe_id = req.params.recipeId;
-      const user_id = req.session.user_id;
-      console.log("recipe_id : "+recipe_id);
-      console.log("user_id : "+user_id);
-      let receips;
-      if (
-        recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
-        recipe_id === undefined
-      ) {
-        receips = await recipes_utils.viewRecipe(user_id, recipe_id);
-      } else {
-        console.log("in else");
-        receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
-        console.log(receips);
-      }
-      if (receips) {
-        res.status(200).send(receips);
-      } else {
-        res.status(204).send({
-          message: "no recipe was found with that id",
-          success: false,
-        });
-      }
+    const recipe_id = req.params.recipeId;
+    const user_id = req.session.user_id;
+    console.log("recipe_id : " + recipe_id);
+    console.log("user_id : " + user_id);
+    let receips;
+    if (
+      recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
+      recipe_id === undefined
+    ) {
+      receips = await recipes_utils.viewRecipe(user_id, recipe_id);
+    } else {
+      console.log("in else");
+      receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
+      console.log(receips);
+    }
+    if (receips) {
+      res.status(200).send(receips);
+    } else {
+      res.status(204).send({
+        message: "no recipe was found with that id",
+        success: false,
+      });
+    }
     // }
   } catch (error) {
     next(error);
@@ -286,7 +286,7 @@ router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
 router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    console.log(req.body.recipeId,req.body.neworder);
+    console.log(req.body.recipeId, req.body.neworder);
     await recipes_utils.changeRecipeOrder(
       user_id,
       req.body.recipeId,
@@ -327,8 +327,8 @@ router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
 /**
  * Error handling
  */
-router.use(function (err, req, res) {
-  res.send(500).send("server error");
+router.use(function (err, req, res, next) {
+  res.status(500).send("server error");
 });
 
 module.exports = router;
