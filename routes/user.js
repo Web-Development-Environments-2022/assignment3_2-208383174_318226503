@@ -282,13 +282,14 @@ router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
 });
 
 //  put change recipe order in meal
-router.put("/changeRecipeOrderInMeal/:recipeId", async (req, res, next) => {
+router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
+    console.log(req.body.recipeId,req.body.neworder);
     await recipes_utils.changeRecipeOrder(
       user_id,
-      req.params.recipeId,
-      req.query.neworder
+      req.body.recipeId,
+      req.body.neworder
     );
     res
       .status(200)
