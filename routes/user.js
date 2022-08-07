@@ -113,7 +113,7 @@ router.post("/add", async (req, res, next) => {
 /**
  * Getting all the personal recipes by a user
  */
-router.get("/myRecipes", async (req, res, next) => {
+router.get("/personals", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     console.log("user id is: " + user_id);
