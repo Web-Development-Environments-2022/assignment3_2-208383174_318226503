@@ -67,32 +67,12 @@ router.get("/random", async (req, res, next) => {
 // });
 
 /**
- * Getting the preview for a recipe
- * Does not mark the recipe as "viewed"
- */
-router.get("/preview", async (req, res, next) => {
-  const user_id = req.session.user_id;
-  const recipe_id = req.query.recipe_id;
-  try {
-    if (recipe_id) {
-      let recipe_preview = await recipes_utils.getRecipePreview(
-        user_id,
-        recipe_id
-      );
-      res.send(recipe_preview);
-    }
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
  * Searching a recipe by a search term
  * supports filtering, inserting number of recipes and sort
  */
-router.get("/search", async (req, res, next) => {
+router.get("/search/:term", async (req, res, next) => {
   const user_id = req.session.user_id;
-  const search_term = req.query.term;
+  const search_term = req.params.term;
   const cuisine = req.query.cuisine;
   const diet = req.query.diet;
   const intolerance = req.query.intolerance;
@@ -123,6 +103,7 @@ router.get("/search", async (req, res, next) => {
   }
 });
 
+// TODO- not used?
 /**
  * bonus- getting a recipe's analyzed instructions
  */
@@ -140,6 +121,27 @@ router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
     next(error);
   }
 });
+
+// TODO- not used?
+/**
+ * Getting the preview for a recipe
+ * Does not mark the recipe as "viewed"
+ */
+// router.get("/preview/:recipeId", async (req, res, next) => {
+//   const user_id = req.session.user_id;
+//   const recipe_id = req.params.recipeId;
+//   try {
+//     if (recipe_id) {
+//       let recipe_preview = await recipes_utils.getRecipePreview(
+//         user_id,
+//         recipe_id
+//       );
+//       res.send(recipe_preview);
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 /**
  * Returns a full details of a recipe by its id

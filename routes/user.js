@@ -113,7 +113,7 @@ router.post("/add", async (req, res, next) => {
 /**
  * Getting all the personal recipes by a user
  */
-router.get("/myRecipes", async (req, res, next) => {
+router.get("/personals", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     console.log("user id is: " + user_id);
@@ -165,40 +165,38 @@ router.get("/lastThreeViewed", async (req, res, next) => {
   }
 });
 
+// TODO- used?
 /*
   getting a preview for a personal recipe
 */
-router.get("/personalPreview", async (req, res, next) => {
-  try {
-    if (recipe_id) {
-      const recipe_id = req.params.recipeId;
-      const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
-        recipe_id
-      );
-      if (personal_recipes.length > 0) {
-        res.status(200).send(personal_recipes);
-      } else {
-        res.status(204).send({
-          message: "no recipe was found with that id",
-          success: false,
-        });
-      }
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+// router.get("/personalPreview", async (req, res, next) => {
+//   try {
+//     if (recipe_id) {
+//       const recipe_id = req.params.recipeId;
+//       const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
+//         recipe_id
+//       );
+//       if (personal_recipes.length > 0) {
+//         res.status(200).send(personal_recipes);
+//       } else {
+//         res.status(204).send({
+//           message: "no recipe was found with that id",
+//           success: false,
+//         });
+//       }
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 /*
   getting the full details of a personal recipe
 */
 router.get("/personal/:recipeId", async (req, res, next) => {
   try {
-    // if (recipe_id) {
     const recipe_id = req.params.recipeId;
     const user_id = req.session.user_id;
-    console.log("recipe_id : " + recipe_id);
-    console.log("user_id : " + user_id);
     let receips;
     if (
       recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
@@ -206,13 +204,12 @@ router.get("/personal/:recipeId", async (req, res, next) => {
     ) {
       receips = await recipes_utils.viewRecipe(user_id, recipe_id);
     } else {
-      console.log("in else");
       receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
-      console.log(receips);
     }
-    if (receips) {
+    if (receips && receips != -1) {
       res.status(200).send(receips);
     } else {
+      console.log("this user does not have a personal recipe with that id");
       res.status(204).send({
         message: "no recipe was found with that id",
         success: false,
@@ -224,42 +221,46 @@ router.get("/personal/:recipeId", async (req, res, next) => {
   }
 });
 
-// TODO- add value checking and check for null if we'll use the analyzed details
+/**/
 
 /* bonus*/
 
+// TODO- not used
 /* 
   getting the analyzed details of a personal recipe
 */
-router.get("/personalAnalyzed", async (req, res, next) => {
-  try {
-    const recipe_id = req.query.recipe_id;
-    const personal_recipes =
-      await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
-    res.status(200).send(personal_recipes);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
+// router.get("/personalAnalyzed", async (req, res, next) => {
+//   try {
+//     const recipe_id = req.query.recipe_id;
+//     const personal_recipes =
+//       await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
+//     res.status(200).send(personal_recipes);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+router.post("/upcommingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
+  // TODO- need to check if not already in upcomming?
+  let is_personal = req.query.isPersonal;
+  let recipe_id = req.params.recipeId;
+  console.log(is_personal);
   try {
-    await recipes_utils.addRecipeToUpcommingMeal(
-      user_id,
-      req.params.recipeId,
-      req.query.isPersonal
-    );
-    res.status(200).send("Recipe successfully added to Upcomming meal");
+    if (recipe_id) {
+      await recipes_utils.addRecipeToUpcommingMeal(
+        user_id,
+        recipe_id,
+        is_personal
+      );
+      res.status(200).send("Recipe successfully added to Upcomming meal");
+    }
   } catch (error) {
     next(error);
   }
 });
-
-// TODO- add checkings to those functions
 
 // get UpcommingMeal recipes
-router.get("/getUpcommingMeal", async (req, res, next) => {
+router.get("/upcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const meal_recipes = await recipes_utils.getUpcommingMealRecipes(user_id);
@@ -270,51 +271,55 @@ router.get("/getUpcommingMeal", async (req, res, next) => {
 });
 
 // get number of upcomming meals
-router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
+router.get("/NumRecipesUpcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
       user_id
     );
-    res.status(200).send(meal_recipes);
+    console.log("!! " + meal_recipes);
+    res.status(200).send(" " + meal_recipes); // TODO- need to recive at string at 3.3
   } catch (error) {
     next(error);
   }
 });
 
+// TODO- maybe change to "current location", "new location"? bug if 2 recipes with same id- personal & not
 //  put change recipe order in meal
 router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    console.log(req.body.recipeId, req.body.neworder);
-    await recipes_utils.changeRecipeOrder(
-      user_id,
-      req.body.recipeId,
-      req.body.neworder
-    );
-    res
-      .status(200)
-      .send(
-        `the order of recipe ${req.params.recipeId} was changed to ${req.query.neworder}`
-      );
+    const recipe_id = req.body.recipeId;
+    const new_order = req.body.neworder;
+    if (recipe_id && new_order) {
+      console.log(req.body.recipeId, req.body.neworder);
+      await recipes_utils.changeRecipeOrder(user_id, recipe_id, new_order);
+      res
+        .status(200)
+        .send(`the order of recipe ${recipe_id} was changed to ${new_order}`);
+    }
   } catch (error) {
     next(error);
   }
 });
 
 // remove recipe from list
-router.put("/removeRecipeFromMeal", async (req, res, next) => {
+router.delete("/removeRecipeFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    await recipes_utils.removeRecipeFromMeal(user_id, req.body.recipeId);
-    res.status(200).send(`recipe ${req.body.recipeId} was deleted from meal`);
+    const recipe_id = req.body.recipeId;
+    if (recipe_id) {
+      await recipes_utils.removeRecipeFromMeal(user_id, recipe_id);
+      res.status(200).send(`recipe ${recipe_id} was deleted from meal`);
+    }
   } catch (error) {
     next(error);
   }
 });
 
 //delete all list
-router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
+router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
+  console.log("remove all");
   try {
     const user_id = req.session.user_id;
     await recipes_utils.removeAllRecipeFromMeal(user_id);

@@ -171,13 +171,16 @@ async function addIngredientsAndQuantities(
 
 // getting the preview information of a personal recipe
 async function getPersonalRecipePreview(user_id, recipe_id) {
+  console.log(
+    `getting from db peronsl recipe ${recipe_id} with user id ${user_id}`
+  );
   try {
     const personalRecipe = await DButils.execQuery(
       `SELECT * FROM usersPersonalRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
     );
-    console.log(
-      `getting from db peronsl recipe ${recipe_id} with user id ${user_id}`
-    );
+    if (personalRecipe[0] === undefined) {
+      return -1;
+    }
     return personalRecipe[0];
   } catch (error) {
     return;
@@ -418,12 +421,14 @@ async function getFamilyRecipes(user_id) {
 
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
   let personal_val;
-  console.log("personal in DBFunc addRecipeToUpcommingMeal is: "+personal);
-  if (personal) {
+  console.log("personal in DBFunc addRecipeToUpcommingMeal is: " + personal);
+  if (personal == "true") {
+    //TODO- changed
     personal_val = 1;
   } else {
     personal_val = 0;
   }
+  console.log(personal_val);
   let index = await getOrderOfLastRecipe(user_id);
   await DButils.execQuery(
     `insert into mealplanningrecipes values ('${user_id}','${recipe_id}','${personal_val}', '${index}')`
