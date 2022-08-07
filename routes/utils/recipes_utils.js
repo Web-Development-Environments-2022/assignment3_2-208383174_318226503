@@ -29,7 +29,7 @@ async function getRandomRecipiesFromSpoonacular() {
 // Getting the recipe preview information
 async function getRecipePreview(user_id, recipe_id, recipe_info) {
   if (recipe_info === undefined) {
-    recipe_info = await getRecipeInformation(recipe_id).data;
+    recipe_info = (await getRecipeInformation(recipe_id)).data;
   }
   let is_favorite = false;
   let is_viewed = false;
@@ -123,7 +123,7 @@ async function searchRecipes(
   let selected_recipes = [];
   for (let i = 0; i < recipes.length; i++) {
     let recipe_id = recipes[i].id;
-    selected_recipes.push(getRecipeDetails(user_id, recipe_id));
+    selected_recipes.push(getRecipePreview(user_id, recipe_id, recipes[i]));
   }
   return await Promise.all(selected_recipes);
 }
@@ -204,8 +204,13 @@ async function getRandomRecipies(user_id, num_of_recipes) {
 }
 
 // Getting additional information about a recipe
-async function getAdditionalInformation(recipe_id) {
+async function getFullInformation(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
+  let previewInfo = await getRecipePreview(
+    user_id,
+    recipe_id,
+    recipe_info.data
+  );
   let extendedIngredients = recipe_info.data.extendedIngredients;
   let analyzedInstructions = recipe_info.data.analyzedInstructions;
   let ingredientsAndQuantities = [];
@@ -256,6 +261,7 @@ async function getAdditionalInformation(recipe_id) {
   return {
     ingredientsAndQuantities: ingredientsAndQuantities,
     analyzedInstructions: analyzedInstructionArray,
+    previewInfo: previewInfo,
   };
 }
 
@@ -266,12 +272,11 @@ async function getRecipeDetails(user_id, recipe_id) {
     let viewed = await dbFunctionality_utils.isRecipeViewed(user_id, recipe_id);
     first_time = !viewed;
   }
-  let { ingredientsAndQuantities, analyzedInstructions } =
-    await getAdditionalInformation(recipe_id);
-  let preview = await getRecipePreview(user_id, recipe_id);
+  let { ingredientsAndQuantities, analyzedInstructions, previewInfo } =
+    await getFullInformation(user_id, recipe_id);
 
   return {
-    previewInfo: preview,
+    previewInfo: previewInfo,
     extendedIngredients: ingredientsAndQuantities,
     analyzedInstructions: analyzedInstructions,
     first_time: first_time,
@@ -282,11 +287,9 @@ async function getRecipeDetails(user_id, recipe_id) {
 async function viewRecipe(user_id, recipe_id) {
   console.log("view recipe function for user " + user_id);
   let recipe_details = await getRecipeDetails(user_id, recipe_id);
-
   if (user_id != undefined) {
     await dbFunctionality_utils.viewRecipe(user_id, recipe_id);
   }
-
   return recipe_details;
 }
 
@@ -529,7 +532,6 @@ async function getFamilyRecipes(user_id) {
 exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
-exports.getRecipeDetails = getRecipeDetails;
 exports.viewRecipe = viewRecipe;
 exports.addNewRecipeByUser = addNewRecipeByUser;
 exports.getFavoriteRecipes = getFavoriteRecipes;

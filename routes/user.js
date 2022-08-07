@@ -328,6 +328,7 @@ router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
  * Error handling
  */
 router.use(function (err, req, res, next) {
+  console.log(err);
   res.status(500).send("server error");
 });
 
