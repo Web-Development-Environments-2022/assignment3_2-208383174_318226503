@@ -165,40 +165,38 @@ router.get("/lastThreeViewed", async (req, res, next) => {
   }
 });
 
+// TODO- used?
 /*
   getting a preview for a personal recipe
 */
-router.get("/personalPreview", async (req, res, next) => {
-  try {
-    if (recipe_id) {
-      const recipe_id = req.params.recipeId;
-      const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
-        recipe_id
-      );
-      if (personal_recipes.length > 0) {
-        res.status(200).send(personal_recipes);
-      } else {
-        res.status(204).send({
-          message: "no recipe was found with that id",
-          success: false,
-        });
-      }
-    }
-  } catch (error) {
-    next(error);
-  }
-});
+// router.get("/personalPreview", async (req, res, next) => {
+//   try {
+//     if (recipe_id) {
+//       const recipe_id = req.params.recipeId;
+//       const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
+//         recipe_id
+//       );
+//       if (personal_recipes.length > 0) {
+//         res.status(200).send(personal_recipes);
+//       } else {
+//         res.status(204).send({
+//           message: "no recipe was found with that id",
+//           success: false,
+//         });
+//       }
+//     }
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 /*
   getting the full details of a personal recipe
 */
 router.get("/personal/:recipeId", async (req, res, next) => {
   try {
-    // if (recipe_id) {
     const recipe_id = req.params.recipeId;
     const user_id = req.session.user_id;
-    console.log("recipe_id : " + recipe_id);
-    console.log("user_id : " + user_id);
     let receips;
     if (
       recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
@@ -206,13 +204,12 @@ router.get("/personal/:recipeId", async (req, res, next) => {
     ) {
       receips = await recipes_utils.viewRecipe(user_id, recipe_id);
     } else {
-      console.log("in else");
       receips = await recipes_utils.getPersonalFull(user_id, recipe_id);
-      console.log(receips);
     }
-    if (receips) {
+    if (receips && receips != -1) {
       res.status(200).send(receips);
     } else {
+      console.log("this user does not have a personal recipe with that id");
       res.status(204).send({
         message: "no recipe was found with that id",
         success: false,

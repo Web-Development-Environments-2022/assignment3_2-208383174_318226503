@@ -46,6 +46,9 @@ async function getRecipePreview(user_id, recipe_id, recipe_info) {
 // Getting a personal recipe preview information
 async function getRecipePreviewPersonal(user_id, recipe_id, is_favorite) {
   let recipe_info = await getPersonalRecipePreviewFromDB(user_id, recipe_id);
+  if (recipe_info === -1) {
+    return -1;
+  }
   if (is_favorite == undefined) {
     is_favorite = false;
   }
@@ -326,6 +329,9 @@ async function addNewRecipeByUser(user_id, recipe_info) {
 // getting the full information about a recipe
 async function getPersonalFull(user_id, recipe_id) {
   const preview = await getRecipePreviewPersonal(user_id, recipe_id);
+  if (preview === -1) {
+    return -1;
+  }
   const additional =
     await dbFunctionality_utils.getAdditionalInformationPersonal(recipe_id);
   const ingredients = additional.ingredients;
@@ -345,6 +351,9 @@ async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
     user_id,
     recipe_id
   );
+  if (recipe === -1) {
+    return -1;
+  }
   return {
     id: recipe.recipe_id,
     title: recipe.title,
@@ -462,6 +471,9 @@ async function getAnalyzedInstructions(user_id, recipe_id, is_personal) {
 // getting the analyzed instructions for a personal recipe
 async function getPersonalAnalyzedInstructions(recipe_id) {
   const fullPersonal = await getPersonalFull(recipe_id);
+  if (fullPersonal === -1) {
+    return -1;
+  }
   const AnalyzedInstructions =
     await dbFunctionality_utils.getAnalyzedInstructionsPersonal(recipe_id);
   return { fullPersonal, AnalyzedInstructions };
