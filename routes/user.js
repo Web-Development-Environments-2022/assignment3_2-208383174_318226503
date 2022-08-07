@@ -221,42 +221,46 @@ router.get("/personal/:recipeId", async (req, res, next) => {
   }
 });
 
-// TODO- add value checking and check for null if we'll use the analyzed details
+/**/
 
 /* bonus*/
 
+// TODO- not used
 /* 
   getting the analyzed details of a personal recipe
 */
-router.get("/personalAnalyzed", async (req, res, next) => {
-  try {
-    const recipe_id = req.query.recipe_id;
-    const personal_recipes =
-      await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
-    res.status(200).send(personal_recipes);
-  } catch (error) {
-    next(error);
-  }
-});
-
-router.post("/addToUpcommingMeal/:recipeId", async (req, res, next) => {
+// router.get("/personalAnalyzed", async (req, res, next) => {
+//   try {
+//     const recipe_id = req.query.recipe_id;
+//     const personal_recipes =
+//       await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
+//     res.status(200).send(personal_recipes);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+router.post("/upcommingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
+  // TODO- need to check if not already in upcomming?
+  let is_personal = req.query.isPersonal;
+  let recipe_id = req.params.recipeId;
+  console.log(is_personal);
   try {
-    await recipes_utils.addRecipeToUpcommingMeal(
-      user_id,
-      req.params.recipeId,
-      req.query.isPersonal
-    );
-    res.status(200).send("Recipe successfully added to Upcomming meal");
+    if (recipe_id) {
+      await recipes_utils.addRecipeToUpcommingMeal(
+        user_id,
+        recipe_id,
+        is_personal
+      );
+      res.status(200).send("Recipe successfully added to Upcomming meal");
+    }
   } catch (error) {
     next(error);
   }
 });
-
-// TODO- add checkings to those functions
 
 // get UpcommingMeal recipes
-router.get("/getUpcommingMeal", async (req, res, next) => {
+router.get("/upcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const meal_recipes = await recipes_utils.getUpcommingMealRecipes(user_id);
@@ -267,7 +271,7 @@ router.get("/getUpcommingMeal", async (req, res, next) => {
 });
 
 // get number of upcomming meals
-router.get("/getNumRecipesInUpcommingMeal", async (req, res, next) => {
+router.get("/NumRecipesUpcommingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(

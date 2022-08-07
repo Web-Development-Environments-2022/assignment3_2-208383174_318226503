@@ -422,11 +422,13 @@ async function getFamilyRecipes(user_id) {
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
   let personal_val;
   console.log("personal in DBFunc addRecipeToUpcommingMeal is: " + personal);
-  if (personal) {
+  if (personal == "true") {
+    //TODO- changed
     personal_val = 1;
   } else {
     personal_val = 0;
   }
+  console.log(personal_val);
   let index = await getOrderOfLastRecipe(user_id);
   await DButils.execQuery(
     `insert into mealplanningrecipes values ('${user_id}','${recipe_id}','${personal_val}', '${index}')`
