@@ -277,45 +277,49 @@ router.get("/NumRecipesUpcommingMeal", async (req, res, next) => {
     const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
       user_id
     );
-    res.status(200).send(meal_recipes);
+    console.log("!! " + meal_recipes);
+    res.status(200).send(" " + meal_recipes); // TODO- need to recive at string at 3.3
   } catch (error) {
     next(error);
   }
 });
 
+// TODO- maybe change to "current location", "new location"? bug if 2 recipes with same id- personal & not
 //  put change recipe order in meal
 router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    console.log(req.body.recipeId, req.body.neworder);
-    await recipes_utils.changeRecipeOrder(
-      user_id,
-      req.body.recipeId,
-      req.body.neworder
-    );
-    res
-      .status(200)
-      .send(
-        `the order of recipe ${req.params.recipeId} was changed to ${req.query.neworder}`
-      );
+    const recipe_id = req.body.recipeId;
+    const new_order = req.body.neworder;
+    if (recipe_id && new_order) {
+      console.log(req.body.recipeId, req.body.neworder);
+      await recipes_utils.changeRecipeOrder(user_id, recipe_id, new_order);
+      res
+        .status(200)
+        .send(`the order of recipe ${recipe_id} was changed to ${new_order}`);
+    }
   } catch (error) {
     next(error);
   }
 });
 
 // remove recipe from list
-router.put("/removeRecipeFromMeal", async (req, res, next) => {
+router.delete("/removeRecipeFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    await recipes_utils.removeRecipeFromMeal(user_id, req.body.recipeId);
-    res.status(200).send(`recipe ${req.body.recipeId} was deleted from meal`);
+    const recipe_id = req.body.recipeId;
+    if (recipe_id) {
+      await recipes_utils.removeRecipeFromMeal(user_id, recipe_id);
+      res.status(200).send(`recipe ${recipe_id} was deleted from meal`);
+    }
   } catch (error) {
     next(error);
   }
 });
 
 //delete all list
-router.put("/removeAllRecipesFromMeal", async (req, res, next) => {
+router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
+  console.log("remove all");
   try {
     const user_id = req.session.user_id;
     await recipes_utils.removeAllRecipeFromMeal(user_id);
