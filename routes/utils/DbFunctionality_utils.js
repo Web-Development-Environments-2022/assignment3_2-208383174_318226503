@@ -21,9 +21,9 @@ async function markAsFavorite(user_id, recipe_id, personal) {
     await DButils.execQuery(
       `insert into FavoriteRecipes values ('${user_id}',${recipe_id},'${is_personal}')`
     );
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 async function unmarkAsFavorite(user_id, recipe_id, personal) {
@@ -38,9 +38,9 @@ async function unmarkAsFavorite(user_id, recipe_id, personal) {
     await DButils.execQuery(
       `DELETE FROM FavoriteRecipes WHERE user_id='${user_id}' AND recipe_id=${recipe_id} AND is_personal='${is_personal}'`
     );
-    return 1;
+    return true;
   }
-  return 0;
+  return false;
 }
 
 // get all favorite recipes by a user
@@ -82,9 +82,10 @@ async function viewRecipe(user_id, recipe_id) {
     await DButils.execQuery(
       `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
     );
+    console.log("delete view");
   }
   await DButils.execQuery(
-    `insert into usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
+    `INSERT INTO usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
   );
   console.log(`inserting user ${user_id} watched ${recipe_id}`);
 }
@@ -128,6 +129,7 @@ async function addNewRecipeToDb(
     await addIngredientsAndQuantities(recipe_id, ingredientsAndQuantities);
   }
   if (instructions != undefined) {
+    console.log("adding instructions to db");
     await addInstructions(recipe_id, instructions);
   }
   if (analyzedInstructions) {
@@ -169,13 +171,16 @@ async function addIngredientsAndQuantities(
 
 // getting the preview information of a personal recipe
 async function getPersonalRecipePreview(user_id, recipe_id) {
+  console.log(
+    `getting from db peronsl recipe ${recipe_id} with user id ${user_id}`
+  );
   try {
     const personalRecipe = await DButils.execQuery(
       `SELECT * FROM usersPersonalRecipes WHERE user_id = ${user_id} AND recipe_id = ${recipe_id}`
     );
-    console.log(
-      `getting from db peronsl recipe ${recipe_id} with user id ${user_id}`
-    );
+    if (personalRecipe[0] === undefined) {
+      return -1;
+    }
     return personalRecipe[0];
   } catch (error) {
     return;
@@ -416,11 +421,14 @@ async function getFamilyRecipes(user_id) {
 
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
   let personal_val;
-  if (personal) {
+  console.log("personal in DBFunc addRecipeToUpcommingMeal is: " + personal);
+  if (personal == "true") {
+    //TODO- changed
     personal_val = 1;
   } else {
     personal_val = 0;
   }
+  console.log(personal_val);
   let index = await getOrderOfLastRecipe(user_id);
   await DButils.execQuery(
     `insert into mealplanningrecipes values ('${user_id}','${recipe_id}','${personal_val}', '${index}')`
@@ -439,7 +447,7 @@ async function getOrderOfLastRecipe(user_id) {
 
 async function getRecipesUpcommingMeal(user_id) {
   return await DButils.execQuery(
-    `SELECT recipe_id,is_personal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
+    `SELECT recipe_id,isPersonal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
   );
 }
 
@@ -452,6 +460,7 @@ async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
     old_order = Number(res[0]["order_num"]);
   });
 
+  
   if (old_order < neworder) {
     await DButils.execQuery(`UPDATE mealplanningrecipes 
     SET order_num = order_num-1
