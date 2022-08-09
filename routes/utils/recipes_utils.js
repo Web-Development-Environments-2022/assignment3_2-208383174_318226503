@@ -528,6 +528,7 @@ async function getNumOfUpcommingMealRecipes(user_id) {
 
 async function removeRecipeFromMeal(user_id, recipeId) {
   let num = await getNumOfUpcommingMealRecipes(user_id);
+  console.log(num);
   await changeRecipeOrder(user_id, recipeId, num);
   await dbFunctionality_utils.removeRecipeFromMeal(user_id, recipeId);
 }

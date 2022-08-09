@@ -460,6 +460,7 @@ async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
     old_order = Number(res[0]["order_num"]);
   });
 
+  
   if (old_order < neworder) {
     await DButils.execQuery(`UPDATE mealplanningrecipes 
     SET order_num = order_num-1
