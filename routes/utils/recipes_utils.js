@@ -140,7 +140,7 @@ async function getSearchSpoonacular(
   num_of_recipes,
   sort
 ) {
-  let request_url = `${api_domain}/complexSearch?query=${search_term}`;
+  let request_url = `${api_domain}/complexSearch?query=${search_term}&addRecipeInformation=true`;
   if (cuisine !== undefined) {
     request_url = request_url.concat(`&cuisine=${cuisine}`);
   }
@@ -386,7 +386,6 @@ async function getFavoriteRecipes(user_id) {
 // Getting all of the user's personal recipes
 async function getPersonalRecipes(user_id) {
   let recipes_ids = await dbFunctionality_utils.getPersonalRecipes(user_id);
-  console.log("1 finished getting all the ids");
   let recipes_preview = [];
   for (let recipe of recipes_ids) {
     recipes_preview.push(
@@ -481,7 +480,6 @@ async function getPersonalAnalyzedInstructions(recipe_id) {
 
 /* bonus*/
 async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
-  console.log("personal in addRecipeToUpcommingMeal is: " + personal);
   await dbFunctionality_utils.addRecipeToUpcommingMeal(
     user_id,
     recipe_id,
@@ -501,7 +499,6 @@ async function getUpcommingMealRecipes(user_id) {
 
       recipes_preview.push({ order: recipe.order_num, recipe_preview: r });
     } else {
-      console.log("recipe.isPersonal: " + recipe.isPersonal);
       let r = await getRecipePreview(user_id, recipe.recipe_id);
       recipes_preview.push({ order: recipe.order_num, recipe_preview: r });
     }
@@ -528,7 +525,6 @@ async function getNumOfUpcommingMealRecipes(user_id) {
 
 async function removeRecipeFromMeal(user_id, recipeId) {
   let num = await getNumOfUpcommingMealRecipes(user_id);
-  console.log(num);
   await changeRecipeOrder(user_id, recipeId, num);
   await dbFunctionality_utils.removeRecipeFromMeal(user_id, recipeId);
 }
