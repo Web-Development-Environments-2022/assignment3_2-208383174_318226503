@@ -28,7 +28,7 @@ async function markAsFavorite(user_id, recipe_id, personal) {
 
 async function unmarkAsFavorite(user_id, recipe_id, personal) {
   let is_personal;
-  if (personal === false) {
+  if (personal === "false") {
     is_personal = 0;
   } else {
     is_personal = 1;
