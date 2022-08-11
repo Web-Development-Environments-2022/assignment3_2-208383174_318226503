@@ -80,9 +80,12 @@ async function viewRecipe(user_id, recipe_id) {
   let isViewed = await isRecipeViewed(user_id, recipe_id);
   if (isViewed) {
     await DButils.execQuery(
-      `DELETE FROM usersRecipesviews where user_id='${user_id}' AND recipe_id='${recipe_id}'`
+      `UPDATE usersRecipesviews
+      SET time_stamp = CURRENT_TIMESTAMP()
+      WHERE user_id='${user_id}' AND recipe_id='${recipe_id}';`
     );
-    console.log("delete view");
+    console.log(`updating user ${user_id} watched ${recipe_id}`);
+    return;
   }
   await DButils.execQuery(
     `INSERT INTO usersrecipesviews (user_id, recipe_id) VALUES ('${user_id}',${recipe_id})`
@@ -97,7 +100,7 @@ async function isFirstTime(user_id, recipe_id) {
 // get the n newest viewed recipes by a user
 async function getNewestViewedRecipes(user_id, num_of_recipes) {
   const recipes_id = await DButils.execQuery(
-    `SELECT recipe_id FROM usersrecipesviews WHERE user_id = ${user_id} ORDER BY id DESC
+    `SELECT recipe_id FROM usersrecipesviews WHERE user_id = ${user_id} ORDER BY time_stamp DESC
     LIMIT ${num_of_recipes};
     `
   );
