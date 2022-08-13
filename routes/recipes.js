@@ -13,7 +13,7 @@ router.get("/random", async (req, res, next) => {
       user_id,
       NUM_OF_RECIPES
     );
-    res.send(random_recipes);
+    res.status(200).send(random_recipes);
   } catch (error) {
     next(error);
   }
