@@ -109,7 +109,6 @@ async function searchRecipes(
   diet,
   intolerance,
   num_of_recipes,
-  sort
 ) {
   if (num_of_recipes === undefined) {
     num_of_recipes = 5;
@@ -120,7 +119,6 @@ async function searchRecipes(
     diet,
     intolerance,
     num_of_recipes,
-    sort
   );
   let recipes = search_pool.data.results;
   let selected_recipes = [];
@@ -138,7 +136,6 @@ async function getSearchSpoonacular(
   diet,
   intolerance,
   num_of_recipes,
-  sort
 ) {
   let request_url = `${api_domain}/complexSearch?query=${search_term}&addRecipeInformation=true`;
   if (cuisine !== undefined) {
@@ -149,12 +146,6 @@ async function getSearchSpoonacular(
   }
   if (intolerance !== undefined) {
     request_url = request_url.concat(`&intolerance=${intolerance}`);
-  }
-  if (sort === "time") {
-    request_url = request_url.concat(`&sort=time&sortDirection=asc`);
-  }
-  if (sort === "popularity") {
-    request_url = request_url.concat(`&sort=popularity`);
   }
   console.log("going to Spoonacular searching");
 

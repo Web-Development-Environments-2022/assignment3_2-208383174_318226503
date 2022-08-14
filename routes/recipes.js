@@ -13,7 +13,7 @@ router.get("/random", async (req, res, next) => {
       user_id,
       NUM_OF_RECIPES
     );
-    res.send(random_recipes);
+    res.status(200).send(random_recipes);
   } catch (error) {
     next(error);
   }
@@ -30,7 +30,6 @@ router.get("/search/:term", async (req, res, next) => {
   const diet = req.query.diet;
   const intolerance = req.query.intolerance;
   const num_of_recipes = req.query.numOfResults;
-  const sort = req.query.sort;
   try {
     if (search_term) {
       const recipe = await recipes_utils.searchRecipes(
@@ -40,7 +39,6 @@ router.get("/search/:term", async (req, res, next) => {
         diet,
         intolerance,
         num_of_recipes,
-        sort
       );
       if (recipe.length > 0) {
         res.send(recipe);
