@@ -2,7 +2,7 @@ const axios = require("axios");
 const dbFunctionality_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
-//  Get recipes list from spoonacular response and extract the relevant recipe data for preview
+//  Get recipes list from spoonacular response and extract the relevant recipe
 async function getRecipeInformation(recipe_id) {
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
