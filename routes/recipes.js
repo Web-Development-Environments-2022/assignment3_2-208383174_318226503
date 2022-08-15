@@ -54,24 +54,6 @@ router.get("/search/:term", async (req, res, next) => {
   }
 });
 
-// TODO- not used?
-/**
- * bonus- getting a recipe's analyzed instructions
- */
-router.get("/getanalyzedInstructions/:recipeId", async (req, res, next) => {
-  const user_id = req.session.user_id;
-  try {
-    const recipe = await recipes_utils.getAnalyzedInstructions(
-      user_id,
-      req.params.recipeId,
-      req.query.personal
-    );
-    res.send(recipe);
-  } catch (error) {
-    console.log("error at get analyzed Instructions");
-    next(error);
-  }
-});
 
 /**
  * Returns a full details of a recipe by its id
