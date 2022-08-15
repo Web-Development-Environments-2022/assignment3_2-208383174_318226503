@@ -320,7 +320,7 @@ paths:
         "204":
           description: current user didn't watch any recipes yet.
           
-  /users/upcommingMeal/{recipeId}:
+  /users/upcomingMeal/{recipeId}:
     post:
       tags:
         - users
@@ -343,9 +343,9 @@ paths:
             $ref: "#/components/schemas/recipes"
       responses:
         "200":
-          description: Recipe successfully added to Upcomming meal
+          description: Recipe successfully added to upcoming meal
           
-  /users/upcommingMeal:
+  /users/upcomingMeal:
     get:
       tags:
         - users
@@ -354,7 +354,7 @@ paths:
         "200":
           description: current meal plan of logged in user.
   
-  /users/NumRecipesUpcommingMeal:
+  /users/NumRecipesupcomingMeal:
     get:
       tags:
         - users

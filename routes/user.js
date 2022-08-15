@@ -203,52 +203,49 @@ router.get("/personal/:recipeId", async (req, res, next) => {
 /* bonus*/
 
 
-router.post("/upcommingMeal/:recipeId", async (req, res, next) => {
+router.post("/upcomingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
-  // TODO- need to check if not already in upcomming?
+  // TODO- need to check if not already in upcoming?
   let is_personal = req.query.isPersonal;
   let recipe_id = req.params.recipeId;
-  console.log(is_personal);
   try {
     if (recipe_id) {
-      await recipes_utils.addRecipeToUpcommingMeal(
+      await recipes_utils.addRecipeToupcomingMeal(
         user_id,
         recipe_id,
         is_personal
       );
-      res.status(200).send("Recipe successfully added to Upcomming meal");
+      res.status(200).send("Recipe successfully added to upcoming meal");
     }
   } catch (error) {
     next(error);
   }
 });
 
-// get UpcommingMeal recipes
-router.get("/upcommingMeal", async (req, res, next) => {
+// get upcomingMeal recipes
+router.get("/upcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const meal_recipes = await recipes_utils.getUpcommingMealRecipes(user_id);
+    const meal_recipes = await recipes_utils.getupcomingMealRecipes(user_id);
     res.status(200).send(meal_recipes);
   } catch (error) {
     next(error);
   }
 });
 
-// get number of upcomming meals
-router.get("/NumRecipesUpcommingMeal", async (req, res, next) => {
+// get number of upcoming meals
+router.get("/NumRecipesupcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
+    const meal_recipes = await recipes_utils.getNumOfupcomingMealRecipes(
       user_id
     );
-    console.log("!! " + meal_recipes);
-    res.status(200).send(" " + meal_recipes); // TODO- need to recive at string at 3.3
+    res.status(200).send(" " + meal_recipes);
   } catch (error) {
     next(error);
   }
 });
 
-// TODO- maybe change to "current location", "new location"? bug if 2 recipes with same id- personal & not
 //  put change recipe order in meal
 router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
@@ -283,7 +280,6 @@ router.delete("/removeRecipeFromMeal", async (req, res, next) => {
 
 //delete all list
 router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
-  console.log("remove all");
   try {
     const user_id = req.session.user_id;
     await recipes_utils.removeAllRecipeFromMeal(user_id);

@@ -4,7 +4,6 @@ const api_domain = "https://api.spoonacular.com/recipes";
 
 //  Get recipes list from spoonacular response and extract the relevant recipe data for preview
 async function getRecipeInformation(recipe_id) {
-  console.log("going to Spoonacular get recipe information");
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
       includeNutrition: false,
@@ -15,8 +14,6 @@ async function getRecipeInformation(recipe_id) {
 
 // Accessing spoonacular for a random recipe
 async function getRandomRecipiesFromSpoonacular() {
-  console.log("going to Spoonacular getting random recipes");
-
   const response = await axios.get(`${api_domain}/random`, {
     params: {
       number: 10,
@@ -147,7 +144,6 @@ async function getSearchSpoonacular(
   if (intolerance !== undefined) {
     request_url = request_url.concat(`&intolerance=${intolerance}`);
   }
-  console.log("going to Spoonacular searching");
 
   const response = await axios.get(request_url, {
     params: {
@@ -391,7 +387,6 @@ async function getPersonalRecipes(user_id) {
 
 // getting a recipe's analyzed instruction from spoonacular
 async function getAnalyzedInstructionSpoonacular(recipe_id) {
-  console.log("going to Spoonacular get analyzed instruction Spoonacular");
   let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
   const response = await axios.get(request_url, {
     params: {
@@ -470,19 +465,19 @@ async function getPersonalAnalyzedInstructions(recipe_id) {
 }
 
 /* bonus*/
-async function addRecipeToUpcommingMeal(user_id, recipe_id, personal) {
-  await dbFunctionality_utils.addRecipeToUpcommingMeal(
+async function addRecipeToupcomingMeal(user_id, recipe_id, personal) {
+  await dbFunctionality_utils.addRecipeToupcomingMeal(
     user_id,
     recipe_id,
     personal
   );
   console.log(
-    `recipe number ${recipe_id} was added by user ${user_id} to upcomming meal`
+    `recipe number ${recipe_id} was added by user ${user_id} to upcoming meal`
   );
 }
 
-async function getUpcommingMealRecipes(user_id) {
-  let recipes = await dbFunctionality_utils.getRecipesUpcommingMeal(user_id);
+async function getupcomingMealRecipes(user_id) {
+  let recipes = await dbFunctionality_utils.getRecipesupcomingMeal(user_id);
   let recipes_preview = [];
   for (let recipe of recipes) {
     if (recipe.isPersonal == 1) {
@@ -508,14 +503,14 @@ async function changeRecipeOrder(user_id, recipeId, neworder) {
   );
 }
 
-async function getNumOfUpcommingMealRecipes(user_id) {
+async function getNumOfupcomingMealRecipes(user_id) {
   let num = await dbFunctionality_utils.getOrderOfLastRecipe(user_id);
   num = num - 1;
   return num;
 }
 
 async function removeRecipeFromMeal(user_id, recipeId) {
-  let num = await getNumOfUpcommingMealRecipes(user_id);
+  let num = await getNumOfupcomingMealRecipes(user_id);
   await changeRecipeOrder(user_id, recipeId, num);
   await dbFunctionality_utils.removeRecipeFromMeal(user_id, recipeId);
 }
@@ -541,10 +536,10 @@ exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.getPersonalFull = getPersonalFull;
 exports.getRecipePreviewPersonal = getRecipePreviewPersonal;
 exports.getPersonalAnalyzedInstructions = getPersonalAnalyzedInstructions;
-exports.addRecipeToUpcommingMeal = addRecipeToUpcommingMeal;
-exports.getUpcommingMealRecipes = getUpcommingMealRecipes;
+exports.addRecipeToupcomingMeal = addRecipeToupcomingMeal;
+exports.getupcomingMealRecipes = getupcomingMealRecipes;
 exports.changeRecipeOrder = changeRecipeOrder;
-exports.getNumOfUpcommingMealRecipes = getNumOfUpcommingMealRecipes;
+exports.getNumOfupcomingMealRecipes = getNumOfupcomingMealRecipes;
 exports.removeRecipeFromMeal = removeRecipeFromMeal;
 exports.removeAllRecipeFromMeal = removeAllRecipeFromMeal;
 exports.getFamilyRecipes = getFamilyRecipes;
