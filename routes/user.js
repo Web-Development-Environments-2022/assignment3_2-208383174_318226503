@@ -227,7 +227,11 @@ router.get("/upcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const meal_recipes = await recipes_utils.getupcomingMealRecipes(user_id);
-    res.status(200).send(meal_recipes);
+    if (meal_recipes.length == 0){
+      res.status(204).send("you don't have recipes in upcoming meal");
+    }
+    else{res.status(200).send(meal_recipes);}
+    
   } catch (error) {
     next(error);
   }
@@ -253,7 +257,7 @@ router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
     const recipe_id = req.body.recipeId;
     const new_order = req.body.neworder;
     if (recipe_id && new_order) {
-      console.log(req.body.recipeId, req.body.neworder);
+      console.log("recipe id " + req.body.recipeId + "get new order to " + req.body.neworder);
       await recipes_utils.changeRecipeOrder(user_id, recipe_id, new_order);
       res
         .status(200)
@@ -294,7 +298,12 @@ router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
  */
 router.use(function (err, req, res, next) {
   console.log(err);
+  if (err.status != undefined){
+    res.send(err)  
+  }
+  else{
   res.status(500).send("server error");
+}
 });
 
 module.exports = router;

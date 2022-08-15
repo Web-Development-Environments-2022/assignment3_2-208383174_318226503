@@ -108,7 +108,12 @@ router.get("/:recipeId", async (req, res, next) => {
  */
 router.use(function (err, req, res, next) {
   console.log(err);
+  if (err.status != undefined){
+    res.send(err)  
+  }
+  else{
   res.status(500).send("server error");
+}
 });
 
 module.exports = router;
