@@ -2,7 +2,7 @@ const axios = require("axios");
 const dbFunctionality_utils = require("./DbFunctionality_utils");
 const api_domain = "https://api.spoonacular.com/recipes";
 
-//  Get recipes list from spoonacular response and extract the relevant recipe
+/*  Get recipes list from spoonacular response and extract the relevant recipe */
 async function getRecipeInformation(recipe_id) {
   return await axios.get(`${api_domain}/${recipe_id}/information`, {
     params: {
@@ -12,7 +12,7 @@ async function getRecipeInformation(recipe_id) {
   });
 }
 
-// Accessing spoonacular for a random recipe
+/* Accessing spoonacular for a random recipe */
 async function getRandomRecipiesFromSpoonacular() {
   const response = await axios.get(`${api_domain}/random`, {
     params: {
@@ -23,7 +23,7 @@ async function getRandomRecipiesFromSpoonacular() {
   return response;
 }
 
-// Getting the recipe preview information
+/* Getting the recipe preview information */
 async function getRecipePreview(user_id, recipe_id, recipe_info) {
   if (recipe_info === undefined) {
     recipe_info = (await getRecipeInformation(recipe_id)).data;
@@ -40,7 +40,7 @@ async function getRecipePreview(user_id, recipe_id, recipe_info) {
   return await createPreviewObject(recipe_info, is_favorite, is_viewed, false);
 }
 
-// Getting a personal recipe preview information
+/* Getting a personal recipe preview information */
 async function getRecipePreviewPersonal(user_id, recipe_id, is_favorite) {
   let recipe_info = await getPersonalRecipePreviewFromDB(user_id, recipe_id);
   if (recipe_info === -1) {
@@ -98,7 +98,7 @@ async function createPreviewObject(
   };
 }
 
-// searching recipe
+/* searching recipe */
 async function searchRecipes(
   user_id,
   search_term,
@@ -126,7 +126,7 @@ async function searchRecipes(
   return await Promise.all(selected_recipes);
 }
 
-// searching spoonacular
+/* searching spoonacular */
 async function getSearchSpoonacular(
   search_term,
   cuisine,
@@ -154,7 +154,7 @@ async function getSearchSpoonacular(
   return response;
 }
 
-// get the n newest viewed recipes from a user
+/* get the n newest viewed recipes from a user */
 async function getNewestViewed(user_id, num_of_recipes) {
   recipes_id = await dbFunctionality_utils.getNewestViewedRecipes(
     user_id,
@@ -167,11 +167,10 @@ async function getNewestViewed(user_id, num_of_recipes) {
       await getRecipePreview(user_id, recipes_id[i].recipe_id)
     );
   }
-  // let info_res = await Promise.all(recipes_details);
   return recipes_details;
 }
 
-// Retrieving the wanted number of random recipes
+/* Retrieving the wanted number of random recipes */
 async function getRandomRecipies(user_id, num_of_recipes) {
   let random_pool = await getRandomRecipiesFromSpoonacular();
   let recipes = random_pool.data.recipes.filter(
@@ -193,7 +192,7 @@ async function getRandomRecipies(user_id, num_of_recipes) {
   return await Promise.all(selected_recipes);
 }
 
-// Getting additional information about a recipe
+/* Getting additional information about a recipe */
 async function getFullInformation(user_id, recipe_id) {
   let recipe_info = await getRecipeInformation(recipe_id);
   let previewInfo = await getRecipePreview(
@@ -255,7 +254,7 @@ async function getFullInformation(user_id, recipe_id) {
   };
 }
 
-// Getting the full recipe details by id
+/* Getting the full recipe details by id */
 async function getRecipeDetails(user_id, recipe_id) {
   let first_time = true;
   if (user_id != undefined) {
@@ -273,7 +272,7 @@ async function getRecipeDetails(user_id, recipe_id) {
   };
 }
 
-// Mark recipe as viewed and return it's details
+/* Mark recipe as viewed and return it's details */
 async function viewRecipe(user_id, recipe_id) {
   console.log("view recipe function for user " + user_id);
   let recipe_details = await getRecipeDetails(user_id, recipe_id);
@@ -283,7 +282,7 @@ async function viewRecipe(user_id, recipe_id) {
   return recipe_details;
 }
 
-// Adding new personal recipe by a user
+/* Adding new personal recipe by a user */
 async function addNewRecipeByUser(user_id, recipe_info) {
   let {
     title,
@@ -313,7 +312,7 @@ async function addNewRecipeByUser(user_id, recipe_info) {
   return recipe_id;
 }
 
-// getting the full information about a recipe
+/* getting the full information about a recipe */
 async function getPersonalFull(user_id, recipe_id) {
   const preview = await getRecipePreviewPersonal(user_id, recipe_id);
   if (preview === -1) {
@@ -332,7 +331,7 @@ async function getPersonalFull(user_id, recipe_id) {
   };
 }
 
-// Getting the personal recipe preview information
+/* Getting the personal recipe preview information */
 async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
   let recipe = await dbFunctionality_utils.getPersonalRecipePreview(
     user_id,
@@ -354,7 +353,7 @@ async function getPersonalRecipePreviewFromDB(user_id, recipe_id) {
   };
 }
 
-// Getting all of the user's favorite recipes
+/* Getting all of the user's favorite recipes */
 async function getFavoriteRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getFavoriteRecipes(user_id);
   let recipes_preview = [];
@@ -370,7 +369,7 @@ async function getFavoriteRecipes(user_id) {
   return recipes_preview;
 }
 
-// Getting all of the user's personal recipes
+/* Getting all of the user's personal recipes */
 async function getPersonalRecipes(user_id) {
   let recipes_ids = await dbFunctionality_utils.getPersonalRecipes(user_id);
   let recipes_preview = [];
@@ -385,7 +384,7 @@ async function getPersonalRecipes(user_id) {
 
 /* bonus */
 
-// getting a recipe's analyzed instruction from spoonacular
+/* getting a recipe's analyzed instruction from spoonacular */
 async function getAnalyzedInstructionSpoonacular(recipe_id) {
   let request_url = `${api_domain}/${recipe_id}/analyzedInstructions`;
   const response = await axios.get(request_url, {
@@ -442,7 +441,7 @@ async function getAnalyzedInstructionSpoonacular(recipe_id) {
   };
 }
 
-// getting a recipe's analyzed instruction
+/* getting a recipe's analyzed instruction */
 async function getAnalyzedInstructions(user_id, recipe_id, is_personal) {
   if (is_personal === "true") {
     return await getPersonalAnalyzedInstructions(recipe_id);
@@ -453,7 +452,7 @@ async function getAnalyzedInstructions(user_id, recipe_id, is_personal) {
   }
 }
 
-// getting the analyzed instructions for a personal recipe
+/* getting the analyzed instructions for a personal recipe */
 async function getPersonalAnalyzedInstructions(recipe_id) {
   const fullPersonal = await getPersonalFull(recipe_id);
   if (fullPersonal === -1) {
@@ -464,7 +463,7 @@ async function getPersonalAnalyzedInstructions(recipe_id) {
   return { fullPersonal, AnalyzedInstructions };
 }
 
-/* bonus*/
+/* adding recipe to upcoming meal */
 async function addRecipeToupcomingMeal(user_id, recipe_id, personal) {
   await dbFunctionality_utils.addRecipeToupcomingMeal(
     user_id,
@@ -476,6 +475,7 @@ async function addRecipeToupcomingMeal(user_id, recipe_id, personal) {
   );
 }
 
+/* getting upcoming meal recipes */
 async function getupcomingMealRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getRecipesupcomingMeal(user_id);
   let recipes_preview = [];
@@ -492,39 +492,40 @@ async function getupcomingMealRecipes(user_id) {
   return recipes_preview;
 }
 
+/* changing the recipe order in an upcoming meal */
 async function changeRecipeOrder(user_id, recipeId, neworder) {
   await dbFunctionality_utils.changeRecipeOrderInMeal(
     user_id,
     recipeId,
     neworder
   );
-  console.log(
-    `the order of recipe number ${recipeId} was changed to ${neworder}`
-  );
 }
 
+/* getting number of recipes in upcoming meal */
 async function getNumOfupcomingMealRecipes(user_id) {
   let num = await dbFunctionality_utils.getOrderOfLastRecipe(user_id);
   num = num - 1;
   return num;
 }
 
+/* removing a recipe from a meal */
 async function removeRecipeFromMeal(user_id, recipeId) {
   let num = await getNumOfupcomingMealRecipes(user_id);
   await changeRecipeOrder(user_id, recipeId, num);
   await dbFunctionality_utils.removeRecipeFromMeal(user_id, recipeId);
 }
 
+/* removing all recipes from a meal */
 async function removeAllRecipeFromMeal(user_id) {
   await dbFunctionality_utils.removeAllRecipesFromMeal(user_id);
 }
 
+/* getting family recipes */
 async function getFamilyRecipes(user_id) {
   let recipes = await dbFunctionality_utils.getFamilyRecipes(user_id);
   return recipes;
 }
 
-exports.getRecipePreview = getRecipePreview;
 exports.getRandomRecipies = getRandomRecipies;
 exports.searchRecipes = searchRecipes;
 exports.viewRecipe = viewRecipe;
@@ -532,10 +533,7 @@ exports.addNewRecipeByUser = addNewRecipeByUser;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.getPersonalRecipes = getPersonalRecipes;
 exports.getNewestViewed = getNewestViewed;
-exports.getAnalyzedInstructions = getAnalyzedInstructions;
 exports.getPersonalFull = getPersonalFull;
-exports.getRecipePreviewPersonal = getRecipePreviewPersonal;
-exports.getPersonalAnalyzedInstructions = getPersonalAnalyzedInstructions;
 exports.addRecipeToupcomingMeal = addRecipeToupcomingMeal;
 exports.getupcomingMealRecipes = getupcomingMealRecipes;
 exports.changeRecipeOrder = changeRecipeOrder;

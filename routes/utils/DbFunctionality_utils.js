@@ -26,6 +26,7 @@ async function markAsFavorite(user_id, recipe_id, personal) {
   return false;
 }
 
+// unmark the recipe as favorite by a logged in user- both from api and personals
 async function unmarkAsFavorite(user_id, recipe_id, personal) {
   let is_personal;
   if (personal === "false") {
@@ -231,6 +232,14 @@ async function getInstructionsPersonal(recipe_id) {
   return all_instructions;
 }
 
+// getting the family recipes
+async function getFamilyRecipes(user_id) {
+  const recipes = await DButils.execQuery(
+    `SELECT * FROM userfamilyrecipes WHERE user_id = ${user_id}`
+  );
+  return recipes;
+}
+
 /*
 ----------------------------- Analyzed instructions -----------------------------
 */
@@ -413,20 +422,14 @@ async function getAnalyzedEquipmentPersonal(step_num, recipe_id, element_name) {
   }
 }
 
-async function getFamilyRecipes(user_id) {
-  const recipes = await DButils.execQuery(
-    `SELECT * FROM userfamilyrecipes WHERE user_id = ${user_id}`
-  );
-  return recipes;
-}
 
-// ----------------------------- Bonus -----------------------------
+// --------------------------- upcoming meal -----------------------------
 
+// adding recipe to upcoming meal
 async function addRecipeToupcomingMeal(user_id, recipe_id, personal) {
   let personal_val;
   console.log("personal in DBFunc addRecipeToupcomingMeal is: " + personal);
   if (personal == "true") {
-    //TODO- changed
     personal_val = 1;
   } else {
     personal_val = 0;
@@ -437,6 +440,7 @@ async function addRecipeToupcomingMeal(user_id, recipe_id, personal) {
   );
 }
 
+// getting the order of the last recipe in an upcoming meal
 async function getOrderOfLastRecipe(user_id) {
   let max_order;
   await DButils.execQuery(
@@ -447,12 +451,14 @@ async function getOrderOfLastRecipe(user_id) {
   return max_order;
 }
 
+// getting the upcoming meal for a user
 async function getRecipesupcomingMeal(user_id) {
   return await DButils.execQuery(
     `SELECT recipe_id,isPersonal,order_num FROM mealplanningrecipes WHERE user_id=${user_id} ORDER BY order_num;`
   );
 }
 
+// changing the order of an upcoming meal for a user
 async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
   //check value of prev order
   let old_order;
@@ -461,8 +467,6 @@ async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
   ).then((res) => {
     old_order = Number(res[0]["order_num"]);
   });
-
-  
   if (old_order < neworder) {
     await DButils.execQuery(`UPDATE mealplanningrecipes 
     SET order_num = order_num-1
@@ -479,12 +483,14 @@ async function changeRecipeOrderInMeal(user_id, recipeId, neworder) {
   );
 }
 
+// removing recipe from an upcoming meal by a user
 async function removeRecipeFromMeal(user_id, recipe_id) {
   await DButils.execQuery(
     `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id} AND recipe_id=${recipe_id};`
   );
 }
 
+// removing all recipes from an upcoming meal by a user
 async function removeAllRecipesFromMeal(user_id) {
   await DButils.execQuery(
     `DELETE FROM mealplanningrecipes WHERE user_id = ${user_id};`
@@ -493,6 +499,7 @@ async function removeAllRecipesFromMeal(user_id) {
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
+exports.unmarkAsFavorite = unmarkAsFavorite;
 exports.isRecipeFavorite = isRecipeFavorite;
 exports.isRecipeViewed = isRecipeViewed;
 exports.viewRecipe = viewRecipe;
@@ -508,7 +515,5 @@ exports.changeRecipeOrderInMeal = changeRecipeOrderInMeal;
 exports.getOrderOfLastRecipe = getOrderOfLastRecipe;
 exports.removeRecipeFromMeal = removeRecipeFromMeal;
 exports.removeAllRecipesFromMeal = removeAllRecipesFromMeal;
-exports.unmarkAsFavorite = unmarkAsFavorite;
-exports.isFirstTime = isFirstTime;
 exports.getHighestPersonalIndex = getHighestPersonalIndex;
 exports.getFamilyRecipes = getFamilyRecipes;

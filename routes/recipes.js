@@ -59,15 +59,8 @@ router.get("/search/:term", async (req, res, next) => {
  * Returns a full details of a recipe by its id
  */
 router.get("/:recipeId", async (req, res, next) => {
-  // let is_personal = req.query.isPersonal;
   const user_id = req.session.user_id;
   const recipe_id = req.params.recipeId;
-  // if (is_personal === undefined) {
-  //   is_personal = false;
-  // }
-  // console.log(
-  //   `recipe detail function. recipe id ${req.params.recipeId} user id ${req.session.user_id} and is personal ${is_personal}`
-  // );
   try {
     if (recipe_id) {
       recipe = await recipes_utils.viewRecipe(user_id, recipe_id);

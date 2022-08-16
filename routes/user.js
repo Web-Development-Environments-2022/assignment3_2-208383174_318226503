@@ -48,6 +48,9 @@ router.post("/favorites", async (req, res, next) => {
   }
 });
 
+/**
+ * removes a given recipe id from favorites
+ */
 router.delete("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -148,7 +151,6 @@ router.get("/myFamilyRecipes", async (req, res, next) => {
 
 /**
  * Getting the 3 recipes that the user last viewed
- * For the Main Page
  */
 router.get("/lastThreeViewed", async (req, res, next) => {
   const user_id = req.session.user_id;
@@ -164,7 +166,6 @@ router.get("/lastThreeViewed", async (req, res, next) => {
     next(error);
   }
 });
-
 
 
 /*
@@ -192,20 +193,16 @@ router.get("/personal/:recipeId", async (req, res, next) => {
         success: false,
       });
     }
-    // }
   } catch (error) {
     next(error);
   }
 });
 
-/**/
 
 /* bonus*/
 
-
 router.post("/upcomingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
-  // TODO- need to check if not already in upcoming?
   let is_personal = req.query.isPersonal;
   let recipe_id = req.params.recipeId;
   try {
@@ -222,7 +219,9 @@ router.post("/upcomingMeal/:recipeId", async (req, res, next) => {
   }
 });
 
-// get upcomingMeal recipes
+/*
+ * get all recipes for an upcoming meal
+ */
 router.get("/upcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -237,7 +236,9 @@ router.get("/upcomingMeal", async (req, res, next) => {
   }
 });
 
-// get number of upcoming meals
+/*
+ * gets number of upcoming recipes in meal
+ */
 router.get("/NumRecipesupcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -250,7 +251,9 @@ router.get("/NumRecipesupcomingMeal", async (req, res, next) => {
   }
 });
 
-//  put change recipe order in meal
+/*
+ * change the order in meal of a given recipe
+ */
 router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -268,7 +271,9 @@ router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   }
 });
 
-// remove recipe from list
+/*
+ * removes recipe from upcoming meal
+ */
 router.delete("/removeRecipeFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -282,7 +287,9 @@ router.delete("/removeRecipeFromMeal", async (req, res, next) => {
   }
 });
 
-//delete all list
+/*
+ * removes all recipes from upcoming meal
+ */
 router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
