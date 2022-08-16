@@ -48,6 +48,9 @@ router.post("/favorites", async (req, res, next) => {
   }
 });
 
+/**
+ * removes a given recipe id from favorites
+ */
 router.delete("/favorites", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -148,7 +151,6 @@ router.get("/myFamilyRecipes", async (req, res, next) => {
 
 /**
  * Getting the 3 recipes that the user last viewed
- * For the Main Page
  */
 router.get("/lastThreeViewed", async (req, res, next) => {
   const user_id = req.session.user_id;
@@ -165,31 +167,6 @@ router.get("/lastThreeViewed", async (req, res, next) => {
   }
 });
 
-// TODO- used?
-/*
-  getting a preview for a personal recipe
-*/
-// router.get("/personalPreview", async (req, res, next) => {
-//   try {
-//     if (recipe_id) {
-//       const recipe_id = req.params.recipeId;
-//       const personal_recipes = await recipes_utils.getRecipePreviewPersonal(
-//         recipe_id
-//       );
-//       if (personal_recipes.length > 0) {
-//         res.status(200).send(personal_recipes);
-//       } else {
-//         res.status(204).send({
-//           message: "no recipe was found with that id",
-//           success: false,
-//         });
-//       }
-//     }
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 /*
   getting the full details of a personal recipe
 */
@@ -200,7 +177,7 @@ router.get("/personal/:recipeId", async (req, res, next) => {
     let receips;
     if (
       recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
-      recipe_id === undefined
+      user_id === undefined
     ) {
       receips = await recipes_utils.viewRecipe(user_id, recipe_id);
     } else {
@@ -215,84 +192,78 @@ router.get("/personal/:recipeId", async (req, res, next) => {
         success: false,
       });
     }
-    // }
   } catch (error) {
     next(error);
   }
 });
 
-/**/
-
 /* bonus*/
 
-// TODO- not used
-/* 
-  getting the analyzed details of a personal recipe
-*/
-// router.get("/personalAnalyzed", async (req, res, next) => {
-//   try {
-//     const recipe_id = req.query.recipe_id;
-//     const personal_recipes =
-//       await recipes_utils.getPersonalAnalyzedInstructions(recipe_id);
-//     res.status(200).send(personal_recipes);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-router.post("/upcommingMeal/:recipeId", async (req, res, next) => {
+router.post("/upcomingMeal/:recipeId", async (req, res, next) => {
   const user_id = req.session.user_id;
-  // TODO- need to check if not already in upcomming?
   let is_personal = req.query.isPersonal;
   let recipe_id = req.params.recipeId;
-  console.log(is_personal);
   try {
     if (recipe_id) {
-      await recipes_utils.addRecipeToUpcommingMeal(
+      await recipes_utils.addRecipeToupcomingMeal(
         user_id,
         recipe_id,
         is_personal
       );
-      res.status(200).send("Recipe successfully added to Upcomming meal");
+      res.status(200).send("Recipe successfully added to upcoming meal");
     }
   } catch (error) {
     next(error);
   }
 });
 
-// get UpcommingMeal recipes
-router.get("/upcommingMeal", async (req, res, next) => {
+/*
+ * get all recipes for an upcoming meal
+ */
+router.get("/upcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const meal_recipes = await recipes_utils.getUpcommingMealRecipes(user_id);
-    res.status(200).send(meal_recipes);
+    const meal_recipes = await recipes_utils.getupcomingMealRecipes(user_id);
+    if (meal_recipes.length == 0) {
+      res.status(204).send("you don't have recipes in upcoming meal");
+    } else {
+      res.status(200).send(meal_recipes);
+    }
   } catch (error) {
     next(error);
   }
 });
 
-// get number of upcomming meals
-router.get("/NumRecipesUpcommingMeal", async (req, res, next) => {
+/*
+ * gets number of upcoming recipes in meal
+ */
+router.get("/NumRecipesupcomingMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
-    const meal_recipes = await recipes_utils.getNumOfUpcommingMealRecipes(
+    const meal_recipes = await recipes_utils.getNumOfupcomingMealRecipes(
       user_id
     );
-    console.log("!! " + meal_recipes);
-    res.status(200).send(" " + meal_recipes); // TODO- need to recive at string at 3.3
+    res.status(200).send(" " + meal_recipes);
   } catch (error) {
     next(error);
   }
 });
 
-// TODO- maybe change to "current location", "new location"? bug if 2 recipes with same id- personal & not
-//  put change recipe order in meal
+/*
+ * change the order in meal of a given recipe
+ */
 router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
     const recipe_id = req.body.recipeId;
     const new_order = req.body.neworder;
     if (recipe_id && new_order) {
-      console.log(req.body.recipeId, req.body.neworder);
+      console.log(
+        "recipe id " +
+          req.body.recipeId +
+          "get new order to " +
+          req.body.neworder
+      );
       await recipes_utils.changeRecipeOrder(user_id, recipe_id, new_order);
       res
         .status(200)
@@ -303,7 +274,9 @@ router.put("/changeRecipeOrderInMeal", async (req, res, next) => {
   }
 });
 
-// remove recipe from list
+/*
+ * removes recipe from upcoming meal
+ */
 router.delete("/removeRecipeFromMeal", async (req, res, next) => {
   try {
     const user_id = req.session.user_id;
@@ -317,9 +290,10 @@ router.delete("/removeRecipeFromMeal", async (req, res, next) => {
   }
 });
 
-//delete all list
+/*
+ * removes all recipes from upcoming meal
+ */
 router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
-  console.log("remove all");
   try {
     const user_id = req.session.user_id;
     await recipes_utils.removeAllRecipeFromMeal(user_id);
@@ -334,7 +308,11 @@ router.delete("/removeAllRecipesFromMeal", async (req, res, next) => {
  */
 router.use(function (err, req, res, next) {
   console.log(err);
-  res.status(500).send("server error");
+  if (err.status != undefined) {
+    res.send(err);
+  } else {
+    res.status(500).send("server error");
+  }
 });
 
 module.exports = router;
