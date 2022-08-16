@@ -236,7 +236,7 @@ paths:
         "409":
           description: recipe was not marked as favorite
   
-  /users/myRecipes:
+  /users/personals:
     get:
       tags:
         - users
@@ -320,7 +320,7 @@ paths:
         "204":
           description: current user didn't watch any recipes yet.
           
-  /users/upcomingMeal/{recipeId}:
+  /users/upcommingMeal/{recipeId}:
     post:
       tags:
         - users
@@ -343,9 +343,9 @@ paths:
             $ref: "#/components/schemas/recipes"
       responses:
         "200":
-          description: Recipe successfully added to upcoming meal
+          description: Recipe successfully added to Upcomming meal
           
-  /users/upcomingMeal:
+  /users/upcommingMeal:
     get:
       tags:
         - users
@@ -354,7 +354,7 @@ paths:
         "200":
           description: current meal plan of logged in user.
   
-  /users/NumRecipesupcomingMeal:
+  /users/NumRecipesUpcommingMeal:
     get:
       tags:
         - users

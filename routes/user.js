@@ -177,7 +177,7 @@ router.get("/personal/:recipeId", async (req, res, next) => {
     let receips;
     if (
       recipe_id > (await dbFunctionality_utils.getHighestPersonalIndex()) ||
-      recipe_id === undefined
+      user_id === undefined
     ) {
       receips = await recipes_utils.viewRecipe(user_id, recipe_id);
     } else {
