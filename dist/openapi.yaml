@@ -236,7 +236,7 @@ paths:
         "409":
           description: recipe was not marked as favorite
   
-  /users/myRecipes:
+  /users/personals:
     get:
       tags:
         - users
@@ -253,6 +253,32 @@ paths:
                   $ref: "#/components/schemas/recipePreviewInfo"
         "204":
           description: no private recipes for current user
+          
+  /users/personal/{recipeId}:
+    get:
+      tags:
+        - users
+      summary: returns a user's personal recipe that he created
+      description: recipe that current logged in user created
+      parameters:
+        - name: recipeId
+          in: path
+          description: the wanted recipe's id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            $ref: "#/components/schemas/recipes"
+      responses:
+        "200":
+          description: a user's personal recipe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/recipeFullInfo"
+        "204":
+          description: no private recipe was found with that id
+          
   /users/myFamilyRecipes:
     get:
       tags:
@@ -280,7 +306,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/recipeFullInfo"
+              $ref: "#/components/schemas/recipeAddInfo"
         required: true
       responses:
         "201":
@@ -353,6 +379,12 @@ paths:
       responses:
         "200":
           description: current meal plan of logged in user.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/recipeInMeal"
   
   /users/NumRecipesUpcommingMeal:
     get:
@@ -649,3 +681,27 @@ components:
           type: integer
           description: new order of recipe
           example: 2
+          
+    recipeAddInfo:
+      type: object
+      properties:
+        recipeInfo:
+          $ref: "#/components/schemas/recipeinfo"
+        ingredientsAndQuantities:
+          type: array
+          items:
+            $ref: "#/components/schemas/extendedIngredients"
+        instructions:
+          type: array
+          items:
+            $ref: "#/components/schemas/analyzedInstructions"
+        
+    recipeInMeal:
+      type: object
+      properties:
+        recipeOrder:
+          type: integer
+          description: order of recipe in meal
+          example: 2
+        recipeInfo:
+          $ref: "#/components/schemas/recipeinfo"
